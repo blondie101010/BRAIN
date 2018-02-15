@@ -17,6 +17,7 @@ BRAIN's environment is or can be:
 
 # Usage
 $brain = new Brain("name", "site");
+
 $brain->getAnswer($dataRecord, $result);                           // where the result is only needed to learn
 
 
