@@ -1,4 +1,5 @@
 # BRAIN
+
 Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction system.
 
 BRAIN was developed as a mean to optimize multi-variant prediction making.  After sufficient learning, it exceeds statistical analyses which mainly deal with linear functions, but can not take into account thresholds, holes, and variable acceleration in predictive models.
@@ -6,6 +7,7 @@ BRAIN was developed as a mean to optimize multi-variant prediction making.  Afte
 All that is needed to get BRAIN to make predictions is to provide it as much data as possible with the actual outcome.  Then you can provide new data and ask it for the expected outcome.  The BRAIN's answer is relative to the provided real outcomes.
 
 While it does not know anything about reality, it can take various data from the past, along with their real outcome, and make rules that allow it to predict the future with new data.
+
 
 ## Applications
 
@@ -16,6 +18,7 @@ Its domain of application is extremely vast and can include human behaviour, eng
 Its efficiency resides in the data that is fed to it.  You can not expect it to predict something based on data which doesn't show the event happening multiple times.
 
 Its precision on the long run far exceeds the limits of statistical analysis.
+
 
 ## Input caracteristics
 
