@@ -2,6 +2,40 @@
 
 Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction system.
 
+
+#### Table of contents
+
+[Introduction](#introduction)
+
+[Applications](#applications)
+
+[Input caracteristics](#input-caracteristics)
+
+[Outcome description](#outcome-description)
+
+[Learning process](#learning-process)
+
+[Back-track mode](#back-track-mode)
+
+[AI implementation details](#ai-implementation-details)
+
+[Usage](#usage)
+
+[Cleanup logic](#cleanup-logic)
+
+[Upgrade process](#upgrade-process)
+
+[Why PHP](#why-php)
+
+[How can the code be so simple?](#how-can-the-code-be-so-simple)
+
+[Important design note](#important-design-note)
+
+[Future](#future)
+
+
+## Introduction
+
 BRAIN was developed as a mean to optimize multi-variant prediction making.  After sufficient learning, it exceeds statistical analyses which mainly deal with linear functions, but can not take into account thresholds, holes, and variable acceleration in predictive models.
 
 All that is needed to get BRAIN to make predictions is to provide it as much data as possible with the actual outcome.  Then you can provide new data and ask it for the expected outcome.  The BRAIN's answer is relative to the provided real outcomes.
@@ -92,7 +126,7 @@ BRAIN's environment is or can be:
 Note that the result is only needed to learn.
 
 
-## Logic cleanup
+## Cleanup logic
 
 In its regular operation, a Link node will check if an underlying Condition node is useless.  For now, it only verifies if a Condition always points to the same child Link.
 
@@ -112,6 +146,8 @@ Making a C equivalent, which was initially considered, may not provide much impr
 
 The big work was to establish how things should be done, not actually doing them which is indeed easy once the design is complete.  Everything is merely a comparison between two values which determines the direction to take.
 
+Of course there is still work to do to improve the system.  Some potential improvements are mentioned in the [Future](#future) section.
+
 
 ## Important design note
 
@@ -120,10 +156,8 @@ BRAIN is a self-enclosed system which doesn't take any dependencies from the out
 
 ## Future
 
-A simple learning script is being developed to be used as is or as a sample.
-
-Note that a single master version has been compared to its multi-master equivalent.  It was found that having a few masters provides smoother and more reliable results in the long run, even though it multiplies the CPU and memory usage.  This and the number of visits a Condition needs to be considered invalid if it always points in the same direction have to be revised further, either by fine-tuning or using configuration options.
-
-There are plans to find ways to better improve the cleanup process, but finding such rules is quite tricky, especially without impacting its performance and efficiency.
-
-Additional trend analysis may be added in the Condition, but a lot of benchmarks need to be done to see if it would be beneficial since it is already extremely efficient in finding patterns and varying the rules could offer very little improvement.
+- A simple learning script is being developed to be used as is or as a sample.
+- Provide sample data to show how it works.  This will be prepared when the learning script is released, or shortly after.  
+- Adding options to change arbitrary thresholds, maily related to the cleanup process.
+- Find ways to better improve the cleanup process, but finding such rules is quite tricky, especially without impacting its performance and efficiency.
+- Additional trend analysis may be added in the Condition, but a lot of benchmarks need to be done to see if it would be beneficial since it is already extremely efficient in finding patterns and varying the rules could offer very little improvement.
