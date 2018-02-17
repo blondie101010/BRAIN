@@ -5,32 +5,19 @@ Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction sy
 
 #### Table of contents
 
-[Introduction](#introduction)
-
-[Applications](#applications)
-
-[Input caracteristics](#input-caracteristics)
-
-[Outcome description](#outcome-description)
-
-[Learning process](#learning-process)
-
-[Back-track mode](#back-track-mode)
-
-[AI implementation details](#ai-implementation-details)
-
-[Usage](#usage)
-
-[Cleanup logic](#cleanup-logic)
-
-[Upgrade process](#upgrade-process)
-
-[Why PHP](#why-php)
-
-[How can the code be so simple?](#how-can-the-code-be-so-simple)
-
-[Important design note](#important-design-note)
-
+[Introduction](#introduction)<br/>
+[Applications](#applications)<br/>
+[Input caracteristics](#input-caracteristics)<br/>
+[Outcome description](#outcome-description)<br/>
+[Learning process](#learning-process)<br/>
+[Back-track mode](#back-track-mode)<br/>
+[AI implementation details](#ai-implementation-details)<br/>
+[Usage](#usage)<br/>
+[Cleanup logic](#cleanup-logic)<br/>
+[Upgrade process](#upgrade-process)<br/>
+[Why PHP](#why-php)<br/>
+[How can the code be so simple?](#how-can-the-code-be-so-simple)<br/>
+[Important design note](#important-design-note)<br/>
 [Future](#future)
 
 
