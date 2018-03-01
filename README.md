@@ -18,6 +18,7 @@ Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction sy
 [Why PHP](#why-php)<br/>
 [How can the code be so simple?](#how-can-the-code-be-so-simple)<br/>
 [Important design note](#important-design-note)<br/>
+[Current status](#current-status)
 [Future](#future)
 
 
@@ -139,6 +140,13 @@ Of course there is still work to do to improve the system.  Some potential impro
 ## Important design note
 
 BRAIN is a self-enclosed system which doesn't take any dependencies from the outside.  This makes it more reliable and much easier to integrate.  Because the master chains are imported, they can not get their dependencies injected and are therefore self-reliant.
+
+
+## Current status
+
+The code is being cleaned up to do a first upload.  This should happen withing the next week or two.
+
+That version will be functional and fairly well tested, but without an automated testing system yet.  Unit testing automation will come after the release of the learning script and the integration to Composer.
 
 
 ## Future
