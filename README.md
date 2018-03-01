@@ -18,7 +18,7 @@ Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction sy
 [Why PHP](#why-php)<br/>
 [How can the code be so simple?](#how-can-the-code-be-so-simple)<br/>
 [Important design note](#important-design-note)<br/>
-[Current status](#current-status)
+[Current status](#current-status)<br/>
 [Future](#future)
 
 
