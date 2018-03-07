@@ -18,6 +18,7 @@ Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction sy
 [Why PHP](#why-php)<br/>
 [How can the code be so simple?](#how-can-the-code-be-so-simple)<br/>
 [Important design note](#important-design-note)<br/>
+[Current status](#current-status)<br/>
 [Future](#future)
 
 
@@ -115,7 +116,7 @@ Note that the result is only needed to learn.
 
 ## Cleanup logic
 
-In its regular operation, a Link node will check if an underlying Condition node is useless.  For now, it only verifies if a Condition always points to the same child Link.
+In its regular operation, a Link node will check if an underlying Condition node is useless or has a bad rating to avoid clogging the chains for nothing.
 
 
 ## Upgrade process
@@ -126,7 +127,7 @@ All changes which would impact a currently operational BRAIN will be handled aut
 
 You may think that using such a high level language might be a barrier in dealing with the important processing requirements of AI, but the flexibility of data abstraction done in this language, makes it easy for almost anyone to pass it data from any source without requiring much programming experience.  That is also useful for the BRAIN's operations on rules corresponding to that data.
 
-Making a C equivalent, which was initially considered, may not provide much improvement since it would have to implement many features of the PHP engine.  It was initially considered more because BRAIN's memory usage was way too high, but after simply getting rid of all arrays, it got down by more than 90%.  C's threading efficiency might still make it an interesting subject, as opposed to PHP's nothing shared threading which makes it much slower.
+Making a C equivalent, which was initially considered, may not provide much improvement since it would have to implement many features of the PHP engine.  It was initially considered more because BRAIN's memory usage was way too high, but after simply getting rid of all arrays, it got down by more than 90%.  C's threading efficiency might still make it an interesting prospect, as opposed to PHP's nothing shared threading which makes it much slower.
 
 
 ## How can the code be so simple?
@@ -141,10 +142,17 @@ Of course there is still work to do to improve the system.  Some potential impro
 BRAIN is a self-enclosed system which doesn't take any dependencies from the outside.  This makes it more reliable and much easier to integrate.  Because the master chains are imported, they can not get their dependencies injected and are therefore self-reliant.
 
 
+## Current status
+
+The code is being cleaned up to do a first upload.  This should happen withing the next week or two.
+
+That version will be functional and fairly well tested, but without an automated testing system yet.  Unit testing automation will come after the release of the learning script and the integration to Composer.
+
+
 ## Future
 
 - A simple learning script is being developed to be used as is or as a sample.
 - Provide sample data to show how it works.  This will be prepared when the learning script is released, or shortly after.  
-- Adding options to change arbitrary thresholds, maily related to the cleanup process.
+- Adding options to change arbitrary thresholds, mainly related to the cleanup process.
 - Find ways to better improve the cleanup process, but finding such rules is quite tricky, especially without impacting its performance and efficiency.
-- Additional trend analysis may be added in the Condition, but a lot of benchmarks need to be done to see if it would be beneficial since it is already extremely efficient in finding patterns and varying the rules could offer very little improvement.
+- Additional trend analysis may be added in the Condition, but a lot of benchmarks need to be done to see if it would be beneficial since it is already quite efficient in finding patterns and varying the rules could offer very little improvement.
