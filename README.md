@@ -144,9 +144,9 @@ BRAIN is a self-enclosed system which doesn't take any dependencies from the out
 
 ## Current status
 
-The code is being cleaned up to do a first upload.  This should happen withing the next week or two.
+An initial commit was done on the BRAIN components which should normally work with a proper auto-loader like Composer's.  Some testing and touch-ups will be done in the next few days to ensure this works smoothly.
 
-That version will be functional and fairly well tested, but without an automated testing system yet.  Unit testing automation will come after the release of the learning script and the integration to Composer.
+That version will be functional and fairly well tested, but without an automated testing system yet.  Unit testing automation will come after the release of the learning script.
 
 
 ## Future
