@@ -78,11 +78,11 @@ class Brain {
 			$this->version = $data['version'];
 			$this->masters = $data['masters'];
 
-			Common::trace("This brain has " . (count($this->masters)) . " master Link node(s) rated as follows:", Common::DEBUG_INFO);
+			Common::trace("This brain has " . (count($this->masters)) . " master Link node(s) rated as follows:", Common::DEBUG_WARNING);
 
 			$worst = PHP_INT_MAX;
 			foreach ($this->masters as $id => $master) {
-				Common::trace("$id: {$master->rating} with {$master->ratingCount} experience.", Common::DEBUG_INFO);
+				Common::trace("$id: {$master->rating} with {$master->ratingCount} experience.", Common::DEBUG_WARNING);
 
 				$master->cleanup();															// cleanup at first to save memory and CPU (very quick)
 
@@ -92,11 +92,14 @@ class Brain {
 				}
 			}
 
-			Common::trace("Worst rated master is $worstId with a rating of {$this->masters[$worstId]->rating} and {$this->masters[$worstId]->ratingCount} experience.  We'll move it up to give it a chance to learn more.", Common::DEBUG_INFO);
+			if (count($this->masters) < 4) {
+				Common::trace("Worst rated master is $worstId with a rating of {$this->masters[$worstId]->rating} and {$this->masters[$worstId]->ratingCount} experience.  We'll move it up to give it a chance to learn more.", Common::DEBUG_WARNING);
 
-			$worstMaster = $this->masters[$worstId];
-			unset($this->masters[$worstId]);
-			$this->masters = [$worstId => $worstMaster] + $this->masters;
+				$worstMaster = $this->masters[$worstId];
+				unset($this->masters[$worstId]);
+				$this->masters = [$worstId => $worstMaster] + $this->masters;
+			}
+
 
 // TODO: consider recycling well rated Condition nodes from masters before rejecting them
 //		 We could put them in $this->spares and pass one to each thread when theirs is used (set to null).
@@ -216,6 +219,11 @@ class Brain {
 	 * @return float|array Actual answer which is between -1 and +1, or the full result array when backTracking is enabled in Common::backTrack.  
 	 **/
 	public function getAnswer(array $data, float $result = null) {
+		if (isset($data['_result']) && is_null($result)) {
+			$result = $data['_result'];
+			unset($data['_result']);
+		}
+
 		// rebuild data array to prefix all fields, preventing internal conflict (_*, _+) and key type errors (numeric keys)
 		$newData = [];
 		foreach ($data as $key => $value) {
@@ -233,7 +241,7 @@ class Brain {
 		}
 
 		if (empty($this->masters) && is_null($result)) {
-			throw new Exception("we need to learn first");
+			throw new \Exception("we need to learn first");
 		}
 
 		$best = null;
@@ -254,7 +262,9 @@ class Brain {
 			}
 		}
 
-		if ((is_null($best) || $best['rating'] < Link::BASE_RATING) && 
+		if ((is_null($best) || 
+			($best['rating'] < Link::BASE_RATING - 0.2 &&
+			 count($this->masters) < 10)) &&												// avoid creating too many new masters
 			!is_null($result)) {															// encourage branching for parallel operations and precision
 			$master = $this->newMaster($data, $result);
 			$response = $master->getAnswer($data, $result);

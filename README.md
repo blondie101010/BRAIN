@@ -144,15 +144,27 @@ BRAIN is a self-enclosed system which doesn't take any dependencies from the out
 
 ## Current status
 
-An initial commit was done on the BRAIN components which should normally work with a proper auto-loader like Composer's.  Some testing and touch-ups will be done in the next few days to ensure this works smoothly.
+After a clean initial commit, test runs in the last few days have been successful with Composer.
 
-That version will be functional and fairly well tested, but without an automated testing system yet.  Unit testing automation will come after the release of the learning script.
+A simple learning script is being developed to be used as is or as a sample.  A sample data set will follow soon after, which by itself will be enough to demonstrate BRAIN's learning ability.
+
+Rating computation has been improved but the current code is not yet ready for production as it still requires some touchups and more testing.
 
 
 ## Future
 
-- A simple learning script is being developed to be used as is or as a sample.
-- Provide sample data to show how it works.  This will be prepared when the learning script is released, or shortly after.  
+- Implement an automated unit testing.
 - Adding options to change arbitrary thresholds, mainly related to the cleanup process.
 - Find ways to better improve the cleanup process, but finding such rules is quite tricky, especially without impacting its performance and efficiency.
 - Additional trend analysis may be added in the Condition, but a lot of benchmarks need to be done to see if it would be beneficial since it is already quite efficient in finding patterns and varying the rules could offer very little improvement.
+- An alternative to the node storage is also being considered to overcome memory limitations which may arise.  Rest assured that an automatic update process will be provided, if it gets implemented.
+
+It is impossible to make something operate faster on a single core, but perhaps if we could find a way to parallelize its operation, it might become scalable horizontally.  The approach currently envisioned would be to loosen its integrity constraints and doing relative update operatons (as much as possible) to avoid locking the records.
+
+a non CRUD approach.
+
+take place when the upgraded version is run for the first time on a BRAIN data set, if that becomes the norm.  It could ideally allow parallel processing, but concurrently writing the same data efficiently from different processes is a considerable challenge which may not get solved soon, if ever.
+
+It is still unclear if the update will be optional or if the repository will have to be forked.  The main reason for this indecision is the fact that the current implementation can not be outperformed by any other means unless a solution is put in place to allow parallel processing which is being envisioned, but concurrent write access to extremely similar node sets will be hard to optimize.
+
+A service daemon will probably be used to serve and update nodes in order to avoid the need to continuously lock and unlock the data files or a mutex.

@@ -86,10 +86,12 @@ class Link {
 	 * @return bool Whether the Condition we link to is bad or useless, or not (acceptable).
 	 **/
 	private function isBadCondition() {
+//		return false;
 		return !is_null($this->type) && $this->type == 'C' &&
-			   (($this->ratingCount > 4 && $this->rating < self::BASE_RATING) || 
+			   (($this->ratingCount > 50 && $this->rating < self::BASE_RATING - 0.05) || 
+			    ($this->ratingCount > 250 && $this->rating < self::BASE_RATING) || 
 //			    in_array($this->target->field0, ["Ffield0", "Fotherfield"]) ||				// quick patch to remove some undesired fields;  be sure to remove them from your input data before you apply this patch
-			    ($this->target->geCount > 4 && !$this->target->ltCount));
+			    ($this->target->geCount > 50 && !$this->target->ltCount));
 	}
 
 
@@ -123,8 +125,8 @@ class Link {
 	 **/
 	public function skip() {
 		// skip the useless or bad Condition but keep its children
-		Common::trace("skipping useless or poorly rated Condition with a rating of {$this->rating}", Common::DEBUG_WARNING);
-//		Common::trace("skipping useless or poorly rated Condition with a rating of {$this->rating}", Common::DEBUG_EXTREME);
+//		Common::trace("skipping useless or poorly rated Condition with a rating of {$this->rating}", Common::DEBUG_WARNING);
+		Common::trace("skipping useless or poorly rated Condition with a rating of {$this->rating}", Common::DEBUG_EXTREME);
 
 		if (!$this->target->ltCount || $this->target->ge->rating > $this->target->lt->rating) {
 			$this->type = $this->target->ge->type;
@@ -147,6 +149,54 @@ class Link {
 			$this->ratingCount = 1;
 			$this->ratingGood = 1;
 		}
+	}
+
+
+	/**
+	 * Evaluate the negative impact of a response.  This function is designed to better organize $this->getAnswer().  
+	 *
+	 * It not only provides the negative impact to return to our caller but also adjusts $this->ratingGood and $this->ratingCount.
+	 *
+	 * @param array|null &$response The response received from our target.
+	 * @param float $result The real life answer to apply to our learning.
+	 * @return float Negative impact value to return to our caller.
+	 **/
+	private function applyImpact($response, $result) {
+		if (is_null($result)) {
+			return 0;
+		}
+
+		$impact = 0;
+
+$begin = $this->ratingGood;
+		if (is_null($response)) {
+			$impact = -1;
+		}
+		else {
+			if (isset($response['impact'])) {
+				$impact = $response['impact'] * 0.5;
+			}
+
+			if (Common::isSameAnswer($response['answer'], $result)) {
+//echo "good answer\n";
+				$impact ++;
+			}
+			else {
+				$impact --;
+			}
+		
+			// fine tuning based on difference between the answer and expected result
+			$this->ratingGood -= abs($response['answer'] - $result);
+		}
+
+		$this->ratingGood += $impact;
+		$this->ratingCount ++;
+
+if ($begin < $this->ratingGood) {
+	//echo "ratingGood changed from $begin to {$this->ratingGood}\n";
+}
+
+		return $impact;
 	}
 
 
@@ -174,10 +224,12 @@ class Link {
     
 		$firstResponse = $response = $this->target->getAnswer($data, $result);
 
+		$impact = $this->applyImpact($response, $result);
+
 		if (!is_null($result)) { 															// do continuous maintenance
-			if ($this->type == "A" && (is_null($response))) {								// Answer is invalid
+			if ($this->type == "A" && is_null($response)) {									// Answer is invalid
 				// lets replace the bad Answer with a new Condition
-				Common::trace("replacing bad Answer with a Condition", Common::DEBUG_EXTREME);
+				Common::trace("replace bad Answer with Condition", Common::DEBUG_EXTREME);
    				$this->type = "C";
 				$this->target = new Condition($data);
 
@@ -193,25 +245,24 @@ class Link {
 				$response = $this->target->getAnswer($data, $result);						// process the new target Condition
 			}
 
-			if (is_null($response) || !Common::isSameAnswer($response['answer'], $result)) {// normally doesn't happen as they get filtered before they get here
-				$this->ratingGood -= 1 + abs($response['answer'] - $result); 				// impact rating more when difference is bigger
-				$response = null;
+			if (is_null($firstResponse)) {													// only do it once per response
+				$impact += $this->applyImpact($response, $result);						// note that $response is passed by ref
 			}
-			elseif (!is_null($firstResponse)) {
-				$this->ratingGood ++;
-			}
-
-			$this->ratingCount ++;
-		}
-
-		if (!is_null($result) && !is_null($response) && isset($response['rating'])) {
-			$this->ratingGood -= 1 - $response['rating'];									// lower impact when response rating is higher
-			$this->ratingGood += $this->rating - self::BASE_RATING;							// balance rating with our own
 		}
 
 		if (!is_null($response)) {
-			if (!isset($response['rating'])) { 												// take the most specific rating
-				$response['rating'] = $this->ratingGood / (float) $this->ratingCount;
+			if (isset($response['rating'])) { 												// take the most specific rating
+				$this->ratingGood += $response['rating'] - self::BASE_RATING;
+			}
+			else {
+				$response['rating'] = $this->rating;
+			}
+
+			if (abs($impact) > 0.01) {
+				$response['impact'] = $impact;
+			}
+			elseif (isset($response['impact'])) {
+				unset($response['impact']);
 			}
 
 			if (Common::$backTrack && $this->type = "C") {
