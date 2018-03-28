@@ -92,7 +92,7 @@ class Brain {
 				}
 			}
 
-			if (count($this->masters) < 4) {
+			if (count($this->masters) < 3) {
 				Common::trace("Worst rated master is $worstId with a rating of {$this->masters[$worstId]->rating} and {$this->masters[$worstId]->ratingCount} experience.  We'll move it up to give it a chance to learn more.", Common::DEBUG_WARNING);
 
 				$worstMaster = $this->masters[$worstId];
@@ -104,7 +104,7 @@ class Brain {
 // TODO: consider recycling well rated Condition nodes from masters before rejecting them
 //		 We could put them in $this->spares and pass one to each thread when theirs is used (set to null).
 
-			if (count($this->masters) > 3) {												// TODO: improve this arbitrary limit
+			if (count($this->masters) > 2) {												// TODO: improve this arbitrary limit
 				Common::trace("Removing worst rated master $worstId with a rating of {$this->masters[$worstId]->rating} and {$this->masters[$worstId]->ratingCount} experience.", Common::DEBUG_WARNING);
 
 				unset($this->masters[$worstId]);
@@ -130,8 +130,10 @@ class Brain {
 			}
 
 			// keep a copy of ourself (no change done when not in learning mode)
+			echo "Saving BRAIN...";
 			$data = ['seq' => $this->seq, 'masters' => $this->masters, 'version' => $this->version];
 			file_put_contents($this->path . "/Brain-" . $this->name . ".dat", serialize($data));
+			echo "completed!\n";
 		}
 	}
 

@@ -51,7 +51,7 @@ class Condition {
 			$this->field0 = $field;
 			$this->field1 = rand(1, 2) == 1 ? "_+" : "_*";			 						// define fields for comparison which includes the progression analysis type
 
-			$this->value = $this->getProgression($data[$field], $this->field1[1]);
+			$this->value = self::getProgression($data[$field], $this->field1[1]);
 		}
 		else {
 			switch (rand(1, 2)) {
@@ -78,7 +78,7 @@ class Condition {
 					// else we make it a static comparison
 
 				case 2:														 				// static value
-					$this->value = $this->getAverage($data[$field]);						// getAverage() will take care of dealing with whether an it's an array or not
+					$this->value = self::getAverage($data[$field]);						// getAverage() will take care of dealing with whether an it's an array or not
 
 					$this->field0 = $field;
 					$this->field1 = null;
@@ -128,7 +128,7 @@ class Condition {
 	 * @param string $type '+' for arithmetic or '*' for geometric.
 	 * @return float The computed progression factor.
 	 **/
-	public function getProgression($values, string $type) {
+	public static function getProgression($values, string $type) {
 		if ($type != '+' && $type != '*') {
 			throw ProgrammingException("getProgression() type must be either '+' or '*'");
 		}
@@ -166,7 +166,7 @@ class Condition {
 	 * @param mixed $values Values for which to build an average.  If $values is not an array, it is simply returned.  For strings, the most common or first entry is taken.
 	 * @return mixed Average of input values which depends on the data type present in $values.
 	 **/
-	public function getAverage($values) {
+	public static function getAverage($values) {
 		if (!is_array($values)) {
 			return $values;
 		}
@@ -214,6 +214,22 @@ class Condition {
 
 
 	/**
+	 * Compare the two values in the $values array.
+	 *
+	 * @param array $values Array of the two values to compare.
+	 * @return string ">=" if $values[0] >= $values[1], else "<".
+	 **/
+	public static function compare(array $values) {
+		if ($values[0] >= $values[1]) {
+			return '>=';
+		}
+		else {
+			return '<';
+		}
+	}
+
+
+	/**
 	 * Get the actual answer.
 	 *
 	 * @param array $data The data record to analyze.
@@ -235,7 +251,7 @@ class Condition {
 		else {																				// direct comparison with $this->value
 			if ($this->field1 == '_+' || $this->field1 == '_*') {							// progression analysis
 				$values[0] = $this->value;
-				$values[1] = $this->getProgression($data[$this->field0], $this->field1[1]);
+				$values[1] = self::getProgression($data[$this->field0], $this->field1[1]);
 			}
 			else {														  					// two field comparison
 				if (!isset($data[$this->field1])) {
@@ -243,34 +259,21 @@ class Condition {
 				}
 
 
-				$values[0] = $this->getAverage($data[$this->field0]);
-				$values[1] = $this->getAverage($data[$this->field1]);
+				$values[0] = self::getAverage($data[$this->field0]);
+				$values[1] = self::getAverage($data[$this->field1]);
 			}
 		}
 
-		if (is_string($values[0])) {
-			if (!is_string($values[1])) {
-				return null;
-			}
-
-			$res = strcmp($values[0], $values[1]);
-
-			$values = [$res, 0];
-		}
-
-		if ($values[0] >= $values[1]) {
-			$linkKey = '>=';
-		}
-		else {
-			$linkKey = '<';
-		}
+		$linkKey = self::compare($values);
 
 		if ($linkKey == '>=') {
-			$response = $this->ge->getAnswer($data, $result);
+			$link = $this->ge;
 		}
 		else {
-			$response = $this->lt->getAnswer($data, $result);
+			$link = $this->lt;
 		}
+
+		$response = $link->getAnswer($data, $result);
 
 		if (!is_null($response)) {
 			if (!is_null($result)) {

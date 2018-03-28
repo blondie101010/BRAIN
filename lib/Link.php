@@ -88,10 +88,10 @@ class Link {
 	private function isBadCondition() {
 //		return false;
 		return !is_null($this->type) && $this->type == 'C' &&
-			   (($this->ratingCount > 50 && $this->rating < self::BASE_RATING - 0.05) || 
-			    ($this->ratingCount > 250 && $this->rating < self::BASE_RATING) || 
+			   (($this->ratingCount > 150 && $this->rating < self::BASE_RATING - 0.05) || 
+			    ($this->ratingCount > 200 && $this->rating < self::BASE_RATING) || 
 //			    in_array($this->target->field0, ["Ffield0", "Fotherfield"]) ||				// quick patch to remove some undesired fields;  be sure to remove them from your input data before you apply this patch
-			    ($this->target->geCount > 50 && !$this->target->ltCount));
+			    ($this->target->geCount > 500 && !$this->target->ltCount));
 	}
 
 
@@ -174,11 +174,10 @@ $begin = $this->ratingGood;
 		}
 		else {
 			if (isset($response['impact'])) {
-				$impact = $response['impact'] * 0.5;
+				$impact = $response['impact'] * 0.25;
 			}
 
 			if (Common::isSameAnswer($response['answer'], $result)) {
-//echo "good answer\n";
 				$impact ++;
 			}
 			else {
@@ -192,11 +191,48 @@ $begin = $this->ratingGood;
 		$this->ratingGood += $impact;
 		$this->ratingCount ++;
 
-if ($begin < $this->ratingGood) {
-	//echo "ratingGood changed from $begin to {$this->ratingGood}\n";
-}
-
 		return $impact;
+	}
+
+
+	protected function makeCondition(array $data, float $result, Answer $answer = null) {
+		$this->type = "C";
+
+		if (!is_null($answer) && !is_null($answer->data)) {
+			// Find a rule that distinguishes between the data record which created $answer and the current one as their results do not match.
+			$possibilities = [];
+
+			foreach ($data as $field => $value) {
+				if ($value != $answer->data[$field]) {										// find a difference
+					$possibilities[$field] = $field;
+				}
+			}
+
+			if (count($possibilities)) {
+				$field = array_rand($possibilities);
+				$this->target = new Condition($data, $field);
+
+				if (Condition::compare([Condition::getAverage($data[$field]), Condition::getAverage($answer->data[$field])]) == ">=") {
+					$this->target->getAnswer($data, $result);
+				}
+				else {
+					$this->target->getAnswer($answer->data, $answer->result);
+				}
+			}
+			else {
+				$answer = null;
+			}
+		}
+
+		if (is_null($answer)) {
+			$this->target = new Condition($data);
+
+			$this->target->getAnswer($data, $result);										// initial learning
+		}
+
+		// clean rating
+		$this->ratingCount = 0;																// it will be incremented later
+		$this->ratingGood = self::BASE_RATING;
 	}
 
 
@@ -230,12 +266,8 @@ if ($begin < $this->ratingGood) {
 			if ($this->type == "A" && is_null($response)) {									// Answer is invalid
 				// lets replace the bad Answer with a new Condition
 				Common::trace("replace bad Answer with Condition", Common::DEBUG_EXTREME);
-   				$this->type = "C";
-				$this->target = new Condition($data);
-
-				// clean rating
-				$this->ratingCount = 0;														// it will be ++ below
-				$this->ratingGood = self::BASE_RATING;
+$answer = $this->target;
+				$this->makeCondition($data, $result, $this->target);						// make Condition based on Answer data
 
 				$response = $this->target->getAnswer($data, $result);						// initial learning
 			}

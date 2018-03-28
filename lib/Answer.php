@@ -19,6 +19,9 @@ class Answer {
 	/** @var int $answerCount Number of encountered matching results.  This also serves as a rating because a single bad decision causes it to get replaced inside its parent Link. */
 	private $answerCount = 0;
 
+	/** @var ArrayObject $data We keep a copy of the data record that created us to be used if we have to be replaced by a Condition. */
+	private $data = null;
+
 
 	/**
 	 * Define which properties to export on serialization.
@@ -26,7 +29,7 @@ class Answer {
 	 * @return array Array of properties to export.
 	 **/
 	public function __sleep() {
-		return ['answerTotal', 'answerCount'];
+		return ['answerTotal', 'answerCount', 'data'];
 	}
 
 
@@ -39,6 +42,13 @@ class Answer {
 	public function __get(string $name) {
 		if (property_exists($this, $name)) {
 			return $this->$name;
+		}
+		elseif ($name == "result") {
+			if (!$this->answerCount) {
+				return null;
+			}
+
+			return $this->answerTotal / (float) $this->answerCount;
 		}
 		else {
 			return null;
@@ -76,6 +86,10 @@ class Answer {
 		if (!is_null($result)) {
 			$same = false;
 
+			if (is_null($this->data)) {
+				$this->data = $data;														// keep a copy for reference
+			}
+
 			if (!$this->answerCount || ($same = Common::isSameAnswer($this->answerTotal / $this->answerCount, $result))) {
 				$this->answerTotal += $result;												// fine tune or set answer
 				$this->answerCount ++;
@@ -91,7 +105,7 @@ class Answer {
 			return null;
 		}
 
-        return ['answer' => $this->answerTotal / $this->answerCount, 'steps' => 1, 'experience' => $this->answerCount];
+        return ['answer' => $this->result, 'steps' => 1, 'experience' => $this->answerCount];
 	}
 }
 
