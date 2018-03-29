@@ -24,7 +24,7 @@ namespace Blondie101010\Brain;
  * 			$brain->getAnswer($dataRecord, $result);										// where the result is only needed to learn
  **/
 class Brain {
-	const LATEST_VERSION = 40;																// latest version to determine if an upgrade is needed
+	const LATEST_VERSION = 41;																// latest version to determine if an upgrade is needed
 
 	/** @var array $masters Master Link nodes.  There is only one unless incompatible data is encountered in the current master Link. */
 	private $masters = [];

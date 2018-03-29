@@ -19,7 +19,7 @@ class Answer {
 	/** @var int $answerCount Number of encountered matching results.  This also serves as a rating because a single bad decision causes it to get replaced inside its parent Link. */
 	private $answerCount = 0;
 
-	/** @var ArrayObject $data We keep a copy of the data record that created us to be used if we have to be replaced by a Condition. */
+	/** @var string $data We keep a copy of the data record in serialized array to be used if we have to be replaced by a Condition. */
 	private $data = null;
 
 
@@ -37,21 +37,32 @@ class Answer {
 	 * Retrieve an individual property.  This allows read-only access to all the class's properties.
 	 *
 	 * @param string $name Name of the property to retrieve.
-	 * @return mixed Value of the requested property or null if undefined.
+	 * @return mixed|null Value of the requested property or null if undefined.
 	 **/
 	public function __get(string $name) {
-		if (property_exists($this, $name)) {
-			return $this->$name;
-		}
-		elseif ($name == "result") {
-			if (!$this->answerCount) {
-				return null;
-			}
+		switch ($name) {
+			case "data":
+				if (is_null($this->data)) {
+					return null;
+				}
 
-			return $this->answerTotal / (float) $this->answerCount;
-		}
-		else {
-			return null;
+				return unserialize($this->data);
+				break;
+
+			case "result":
+				if (!$this->answerCount) {
+					return null;
+				}
+
+				return $this->answerTotal / (float) $this->answerCount;
+				break;
+
+			default:
+				if (property_exists($this, $name)) {
+					return $this->$name;
+				}
+
+				return null;
 		}
 	}
 	
@@ -64,7 +75,10 @@ class Answer {
 	 * @return null
 	 **/
 	public function upgrade(int $version) {
-		if ($version < 1) {																	// nothing to upgrade yet here
+		if ($version < 41) {
+			if (!is_null($this->data) && is_array($this->data)) {
+				$this->data = serialize($this->data);
+			}
 		}
 	}
 
@@ -87,7 +101,7 @@ class Answer {
 			$same = false;
 
 			if (is_null($this->data)) {
-				$this->data = $data;														// keep a copy for reference
+				$this->data = serialize($data);														// keep a copy for reference (serialized to save lots of RAM)
 			}
 
 			if (!$this->answerCount || ($same = Common::isSameAnswer($this->answerTotal / $this->answerCount, $result))) {

@@ -202,8 +202,9 @@ $begin = $this->ratingGood;
 			// Find a rule that distinguishes between the data record which created $answer and the current one as their results do not match.
 			$possibilities = [];
 
+			$answerData = $answer->data;													// only retrieve it once
 			foreach ($data as $field => $value) {
-				if ($value != $answer->data[$field]) {										// find a difference
+				if ($value != $answerData[$field]) {										// find a difference
 					$possibilities[$field] = $field;
 				}
 			}
@@ -212,11 +213,11 @@ $begin = $this->ratingGood;
 				$field = array_rand($possibilities);
 				$this->target = new Condition($data, $field);
 
-				if (Condition::compare([Condition::getAverage($data[$field]), Condition::getAverage($answer->data[$field])]) == ">=") {
+				if (Condition::compare([Condition::getAverage($data[$field]), Condition::getAverage($answerData[$field])]) == ">=") {
 					$this->target->getAnswer($data, $result);
 				}
 				else {
-					$this->target->getAnswer($answer->data, $answer->result);
+					$this->target->getAnswer($answerData, $answer->result);
 				}
 			}
 			else {
