@@ -2,6 +2,7 @@
 
 Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction system.
 
+**Important note:  this is not production ready.  It did pass many tests until weird issues started happening (segmentation faults and a bus error).  The bus error was a good indication that the problem may be hardware related which has been confirmed with memtest86+ which freezes the machine.  So the progression on this project has to be halted until we can get a replacement machine, which may take up to a few weeks.**
 
 #### Table of contents
 
