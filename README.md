@@ -2,7 +2,7 @@
 
 Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction system.
 
-**Important note:  this is not production ready.  It did pass many tests until weird issues started happening (segmentation faults and a bus error).  The bus error was a good indication that the problem may be hardware related which has been confirmed with memtest86+ which freezes the machine.  So the progression on this project has to be halted until we can get a replacement machine, which may take up to a few weeks.**
+**Important note:  this is not production ready.  An bug fix update will be released in the next few days along with a demo data generator and learning script.**
 
 #### Table of contents
 
@@ -159,13 +159,3 @@ Rating computation has been improved but the current code is not yet ready for p
 - Find ways to better improve the cleanup process, but finding such rules is quite tricky, especially without impacting its performance and efficiency.
 - Additional trend analysis may be added in the Condition, but a lot of benchmarks need to be done to see if it would be beneficial since it is already quite efficient in finding patterns and varying the rules could offer very little improvement.
 - An alternative to the node storage is also being considered to overcome memory limitations which may arise.  Rest assured that an automatic update process will be provided, if it gets implemented.
-
-It is impossible to make something operate faster on a single core, but perhaps if we could find a way to parallelize its operation, it might become scalable horizontally.  The approach currently envisioned would be to loosen its integrity constraints and doing relative update operatons (as much as possible) to avoid locking the records.
-
-a non CRUD approach.
-
-take place when the upgraded version is run for the first time on a BRAIN data set, if that becomes the norm.  It could ideally allow parallel processing, but concurrently writing the same data efficiently from different processes is a considerable challenge which may not get solved soon, if ever.
-
-It is still unclear if the update will be optional or if the repository will have to be forked.  The main reason for this indecision is the fact that the current implementation can not be outperformed by any other means unless a solution is put in place to allow parallel processing which is being envisioned, but concurrent write access to extremely similar node sets will be hard to optimize.
-
-A service daemon will probably be used to serve and update nodes in order to avoid the need to continuously lock and unlock the data files or a mutex.
