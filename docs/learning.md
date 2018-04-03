@@ -2,7 +2,7 @@ The BRAIN's learning is done by discriminating records that don't have the same 
 
 If the answer is right, it confirms it by increasing the logic chain's ratings.  When the answer is wrong, it gets destroyed and replaced with a new condition that matches with the current record.
 
-##Learning class
+## Learning class
 
 The `Learning` class handles the input data learning process to ensure a proper level of discrimination was attained before moving on.
 
