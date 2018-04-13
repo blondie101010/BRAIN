@@ -28,7 +28,7 @@ You can learn an individual record with the following:
 
 Parameters:
 - $dataRecord: array of fields.  See [Input characteristics - BRAIN manual](https://blondie101010.github.io/BRAIN/#input-caracteristics) for more details.
-- $result: value between -1 and +1.  It is evaluated in 3 states: close to -1, close to 0, and close to +1.  `0` typically refers to something like average or unknown.  See [Input characteristics - BRAIN manual](https://blondie101010.github.io/BRAIN/#input-caracteristics)) for more details.
+- $result: value between -1 and +1.  It is evaluated in 3 states: close to -1, close to 0, and close to +1.  `0` typically refers to something like average or unknown.  See [Outcome description - BRAIN manual](https://blondie101010.github.io/BRAIN/#outcome-description)) for more details.
 
 
 #### Batch processing with the `Feeder` class
