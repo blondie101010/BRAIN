@@ -4,7 +4,7 @@ Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction sy
 
 **Important note:  this is not production ready.  A bug fix update will be released in the next few days along with a demo data generator and learning script.**
 
-This document is a simple introduction to the system.  For more details, consult the [Brain manual](https://blondie101010.github.io/BRAIN/).
+This document is a simple introduction to the system.  For more details, consult the [BRAIN manual](https://blondie101010.github.io/BRAIN/).
 
 ## Usage
 
@@ -27,8 +27,8 @@ You can learn an individual record with the following:
     $brain->getAnswer(array $dataRecord, float $result = null);
 
 Parameters:
-- $dataRecord: array of fields.  See [Input characteristics - BRAIN manual](https://blondie101010.github.io/BRAIN/#input-caracteristics) for more details.
-- $result: value between -1 and +1.  It is evaluated in 3 states: close to -1, close to 0, and close to +1.  `0` typically refers to something like average or unknown.  See [Outcome description - BRAIN manual](https://blondie101010.github.io/BRAIN/#outcome-description) for more details.
+- $dataRecord: array of fields.  See [BRAIN manual: Input characteristics](https://blondie101010.github.io/BRAIN/#input-caracteristics) for more details.
+- $result: value between -1 and +1.  It is evaluated in 3 states: close to -1, close to 0, and close to +1.  `0` typically refers to something like average or unknown.  See [BRAIN manual: Outcome description](https://blondie101010.github.io/BRAIN/#outcome-description) for more details.
 
 
 #### Batch processing with the `Feeder` class
