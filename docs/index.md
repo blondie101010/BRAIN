@@ -1,5 +1,3 @@
-This documentation is in progress.  For now, it only serves as an index of the project's documentation.
-
 # BRAIN
 
 Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction system.
@@ -146,17 +144,15 @@ BRAIN is a self-enclosed system which doesn't take any dependencies from the out
 
 ## Current status
 
-After a clean initial commit, test runs in the last few days have been successful with Composer.
+A stable release is planned in the next few days and will include a test data generator and learning script.
 
-A simple learning script is being developed to be used as is or as a sample.  A sample data set will follow soon after, which by itself will be enough to demonstrate BRAIN's learning ability.
+### Known issues
 
-Rating computation has been improved but the current code is not yet ready for production as it still requires some touchups and more testing.
+The only operational problem encountered during testing of this release is a segmentation fault of the PHP engine when running a learning job on a 4M node BRAIN.  This issue is presently under investigation and an independent test script with similar symptons is being developed to clarify it.
 
 
 ## Future
 
 - Implement an automated unit testing.
 - Adding options to change arbitrary thresholds, mainly related to the cleanup process.
-- Find ways to better improve the cleanup process, but finding such rules is quite tricky, especially without impacting its performance and efficiency.
 - Additional trend analysis may be added in the Condition, but a lot of benchmarks need to be done to see if it would be beneficial since it is already quite efficient in finding patterns and varying the rules could offer very little improvement.
-- An alternative to the node storage is also being considered to overcome memory limitations which may arise.  Rest assured that an automatic update process will be provided, if it gets implemented.
