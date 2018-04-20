@@ -19,13 +19,10 @@ namespace Blondie101010\Brain;
 class Link {
 	const BASE_RATING = 0.95;
 
-	private $type = null;
 	private $target = null;
 	private $ratingGood = self::BASE_RATING;
 	private $ratingCount = 1;
 
-
-// TODO: remove type and use get_class() which should save more than 10 bytes per Link
 
 	/**
 	 * Define which properties to export on serialization.
@@ -33,7 +30,7 @@ class Link {
 	 * @return array Array of properties to export.
 	 **/
 	public function __sleep() {
-		return ['type', 'target', 'ratingGood', 'ratingCount'];
+		return ['target', 'ratingGood', 'ratingCount'];
 	}
 
 
@@ -68,9 +65,6 @@ class Link {
 	 **/
 	public function upgrade(int $version) {
 		if ($version < 40) {
-			// clean rating
-			$this->ratingGood = self::BASE_RATING;
-			$this->ratingCount = 1;
 		}
 
 		// do so recursively in the chain
@@ -86,12 +80,13 @@ class Link {
 	 * @return bool Whether the Condition we link to is bad or useless, or not (acceptable).
 	 **/
 	private function isBadCondition() {
-//		return false;
-		return !is_null($this->type) && $this->type == 'C' &&
-			   (($this->ratingCount > 150 && $this->rating < self::BASE_RATING - 0.05) || 
-			    ($this->ratingCount > 200 && $this->rating < self::BASE_RATING) || 
+		return !is_null($this->target) && 
+			   get_class($this->target) == "Blondie101010\Brain\Condition" &&
+			   (($this->ratingCount > 10 && $this->rating < self::BASE_RATING - 0.05) || 
+			    ($this->ratingCount > 15 && $this->rating < self::BASE_RATING) || 
+			    ($this->ratingCount > 20 && $this->rating < self::BASE_RATING + 0.05) || 
 //			    in_array($this->target->field0, ["Ffield0", "Fotherfield"]) ||				// quick patch to remove some undesired fields;  be sure to remove them from your input data before you apply this patch
-			    ($this->target->geCount > 500 && !$this->target->ltCount));
+			    ($this->target->geCount > 50 && !$this->target->ltCount));
 	}
 
 
@@ -102,7 +97,8 @@ class Link {
 	 * @return null
 	 **/
 	public function cleanup(bool $trunc = false) {
-		if ($this->type === "C") {															// type may have changed
+		if (!is_null($this->target) && 
+			get_class($this->target) == "Blondie101010\Brain\Condition") {
 			$this->target->ge->cleanup($trunc);
 			$this->target->lt->cleanup($trunc);
 		}
@@ -125,24 +121,20 @@ class Link {
 	 **/
 	public function skip() {
 		// skip the useless or bad Condition but keep its children
-//		Common::trace("skipping useless or poorly rated Condition with a rating of {$this->rating}", Common::DEBUG_WARNING);
 		Common::trace("skipping useless or poorly rated Condition with a rating of {$this->rating}", Common::DEBUG_EXTREME);
 
 		if (!$this->target->ltCount || $this->target->ge->rating > $this->target->lt->rating) {
-			$this->type = $this->target->ge->type;
 			$this->ratingGood = $this->target->ge->ratingGood;
 			$this->ratingCount = $this->target->ge->ratingCount;
 			$this->target = $this->target->ge->target;
 		}
 		else {
-			$this->type = $this->target->lt->type;
 			$this->ratingGood = $this->target->lt->ratingGood;
 			$this->ratingCount = $this->target->lt->ratingCount;
 			$this->target = $this->target->lt->target;
 		}
 
-		if (is_null($this->type)) {															// in case we copied a new Link
-			$this->type = "A";
+		if (is_null($this->target)) {														// in case we copied a new Link
    			$this->target = new Answer();
 
 			// clean rating
@@ -168,7 +160,6 @@ class Link {
 
 		$impact = 0;
 
-$begin = $this->ratingGood;
 		if (is_null($response)) {
 			$impact = -1;
 		}
@@ -196,41 +187,8 @@ $begin = $this->ratingGood;
 
 
 	protected function makeCondition(array $data, float $result, Answer $answer = null) {
-		$this->type = "C";
-
-		if (!is_null($answer) && !is_null($answer->data)) {
-			// Find a rule that distinguishes between the data record which created $answer and the current one as their results do not match.
-			$possibilities = [];
-
-			$answerData = $answer->data;													// only retrieve it once
-			foreach ($data as $field => $value) {
-				if ($value != $answerData[$field]) {										// find a difference
-					$possibilities[$field] = $field;
-				}
-			}
-
-			if (count($possibilities)) {
-				$field = array_rand($possibilities);
-				$this->target = new Condition($data, $field);
-
-				if (Condition::compare([Condition::getAverage($data[$field]), Condition::getAverage($answerData[$field])]) == ">=") {
-					$this->target->getAnswer($data, $result);
-				}
-				else {
-					$this->target->getAnswer($answerData, $answer->result);
-				}
-			}
-			else {
-				$answer = null;
-			}
-		}
-
-		if (is_null($answer)) {
-			$this->target = new Condition($data);
-
-			$this->target->getAnswer($data, $result);										// initial learning
-		}
-
+		$this->target = new Condition($data);
+		$this->target->getAnswer($data, $result);											// initial learning
 		// clean rating
 		$this->ratingCount = 0;																// it will be incremented later
 		$this->ratingGood = self::BASE_RATING;
@@ -245,14 +203,13 @@ $begin = $this->ratingGood;
 	 * @return array|null Array of 'answer', 'steps', 'experience', and optionally 'backTrack',  obtained from our link or null if unknown.
 	 **/
    	public function getAnswer(array $data, float $result = null) {
-		if (is_null($this->type)) {															// we don't know the answer yet
+		if (is_null($this->target)) {														// we don't know the answer yet
    			if (is_null($result)) {
    				return null;
    			}
 
 			Common::trace("adding new Answer", Common::DEBUG_EXTREME);
 			
-			$this->type = "A";
    			$this->target = new Answer();
    		}
 		elseif (!is_null($result) && $this->isBadCondition()) {
@@ -264,10 +221,10 @@ $begin = $this->ratingGood;
 		$impact = $this->applyImpact($response, $result);
 
 		if (!is_null($result)) { 															// do continuous maintenance
-			if ($this->type == "A" && is_null($response)) {									// Answer is invalid
+			if (get_class($this->target) == "Blondie101010\Brain\Answer" && 
+				is_null($response)) {														// Answer is invalid
 				// lets replace the bad Answer with a new Condition
 				Common::trace("replace bad Answer with Condition", Common::DEBUG_EXTREME);
-$answer = $this->target;
 				$this->makeCondition($data, $result, $this->target);						// make Condition based on Answer data
 
 				$response = $this->target->getAnswer($data, $result);						// initial learning
@@ -298,7 +255,7 @@ $answer = $this->target;
 				unset($response['impact']);
 			}
 
-			if (Common::$backTrack && $this->type = "C") {
+			if (Common::$backTrack && get_class($this->target) == "Blondie101010\Brain\Condition") {
 				$backTrack = [];
 
 				$backTrack['field0'] = $this->target->field0;

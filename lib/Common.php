@@ -32,9 +32,10 @@ class Common {
 	 * @param int $level Level of importance of the provided message.
 	 * @return null
 	 **/
-	static function trace(string $message, int $level) {
+	static function trace(string $message, int $level, bool $addLineFeed = true) {
 		if (self::$debug >= $level) {
-			echo $message . PHP_EOL;
+			$eol = ($addLineFeed ? PHP_EOL : '');
+			echo "$message$eol";
 		}
 	}
 

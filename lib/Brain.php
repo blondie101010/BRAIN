@@ -9,13 +9,6 @@
 
 namespace Blondie101010\Brain;
 
-/* TODO:	DONE - import master Chains from peers with automatic upgrade if the version is different
-			DONE - fix debug mode
-			- use a class auto-loader
-			DONE - remove debug parameter in this constructor
-			- enable back-tracking to return the whole decision path followed to reach the answer;  this can be useful for the human operators to learn the rules their BRAIN follows, and clarify the factors that affect the result...  TESTING NEEDED
-*/
-
 
 /**
  * BRAIN's main class which is self-enclosed, taking no dependancies from the outside.
@@ -24,7 +17,7 @@ namespace Blondie101010\Brain;
  * 			$brain->getAnswer($dataRecord, $result);										// where the result is only needed to learn
  **/
 class Brain {
-	const LATEST_VERSION = 41;																// latest version to determine if an upgrade is needed
+	const LATEST_VERSION = 44;																// latest version to determine if an upgrade is needed
 
 	/** @var array $masters Master Link nodes.  There is only one unless incompatible data is encountered in the current master Link. */
 	private $masters = [];
@@ -72,39 +65,58 @@ class Brain {
 
 		$this->path = $path;
 
+		if (!directory_exists($path)) {
+			shell("mkdir -p $path");
+			mkdir($path, 0777, true);
+		}
+
 		if (file_exists("$path/Brain-$name.dat")) {
 			$data = unserialize(file_get_contents("$path/Brain-$name.dat"));
 			$this->seq = $data['seq'];
 			$this->version = $data['version'];
 			$this->masters = $data['masters'];
 
+			// NOTE: auto-detecting if masters are serialized separately (attempt to bypass segfaults with PHP engine
+			if (is_string(reset($this->masters))) {
+				foreach ($this->masters as $key => $master) {
+					$this->masters[$key] = unserialize($master);
+				}
+			}
+
 			Common::trace("This brain has " . (count($this->masters)) . " master Link node(s) rated as follows:", Common::DEBUG_WARNING);
 
-			$worst = PHP_INT_MAX;
+			$worst = $secondWorst = PHP_INT_MAX;
+			$worstId = -1;
 			foreach ($this->masters as $id => $master) {
 				Common::trace("$id: {$master->rating} with {$master->ratingCount} experience.", Common::DEBUG_WARNING);
 
 				$master->cleanup();															// cleanup at first to save memory and CPU (very quick)
 
-				if ($worst >= $master->rating) {											// take the newest lowest rating
-					$worstId = $id;
-					$worst = $master->rating;
+				if ($secondWorst >= $master->rating) {											// take the newest lowest rating
+					if ($worst >= $master->rating) {											// take the newest lowest rating
+						$secondWorstId = $worstId;
+						$secondWorst = $worst;
+						$worstId = $id;
+						$worst = $master->rating;
+					}
+					else {
+						$secondWorstId = $id;
+						$secondWorst = $master->rating;
+					}
 				}
 			}
 
+			Common::trace("Worst rated master is $worstId with a rating of {$this->masters[$worstId]->rating} and {$this->masters[$worstId]->ratingCount} experience.", Common::DEBUG_WARNING);
+
 			if (count($this->masters) < 3) {
-				Common::trace("Worst rated master is $worstId with a rating of {$this->masters[$worstId]->rating} and {$this->masters[$worstId]->ratingCount} experience.  We'll move it up to give it a chance to learn more.", Common::DEBUG_WARNING);
-
-				$worstMaster = $this->masters[$worstId];
-				unset($this->masters[$worstId]);
-				$this->masters = [$worstId => $worstMaster] + $this->masters;
+				Common::trace("Sorting masters by experience.", Common::DEBUG_WARNING);
+				uasort($this->masters, 
+					   function ($a, $b) {
+							return $a->ratingCount <=> $b->ratingCount;
+					   });
 			}
-
-
-// TODO: consider recycling well rated Condition nodes from masters before rejecting them
-//		 We could put them in $this->spares and pass one to each thread when theirs is used (set to null).
-
-			if (count($this->masters) > 2) {												// TODO: improve this arbitrary limit
+			elseif ($this->masters[$worstId]->ratingCount < 1.5 * $this->masters[$secondWorstId]->ratingCount) {
+				// remove weakest master if it's not significantly more experienced (protection)
 				Common::trace("Removing worst rated master $worstId with a rating of {$this->masters[$worstId]->rating} and {$this->masters[$worstId]->ratingCount} experience.", Common::DEBUG_WARNING);
 
 				unset($this->masters[$worstId]);
@@ -131,6 +143,12 @@ class Brain {
 
 			// keep a copy of ourself (no change done when not in learning mode)
 			echo "Saving BRAIN...";
+
+			// NOTE: attempting to bypass serialization bug causing segfault
+			foreach ($this->masters as $key => $master) {
+				$this->masters[$key] = serialize($master);
+			}
+
 			$data = ['seq' => $this->seq, 'masters' => $this->masters, 'version' => $this->version];
 			file_put_contents($this->path . "/Brain-" . $this->name . ".dat", serialize($data));
 			echo "completed!\n";
@@ -207,8 +225,6 @@ class Brain {
 	}
 
 
-// TODO: change getAnswer() to analyze() everywhere
-
 	/**
 	 * Get or learn the actual answer matching the provided $data.
 	 *
@@ -216,9 +232,9 @@ class Brain {
 	 *
 	 * Note that the answer to any learning will always be very similar to $result since it is the current only deterministic path for this data.  Running the same record right after would give the same answer, but processing of different data will cause it to evolve.  For example, a dry run on 1K of our records gives a progression in scores after each learning pass along the lines of 38%, 39%, 48%, 51%, 59%, 52%, 67%, 72%, 80%, 78%, 84%, 89%, 87%, 91%, etc.
 	 *
-	 * @param array $data The data record to analyze.
+	 * @param array $data The data record to getAnswer.
 	 * @param float $result The optional real life answer to apply to our learning, ranging from -1 to +1.
-	 * @return float|array Actual answer which is between -1 and +1, or the full result array when backTracking is enabled in Common::backTrack.  
+	 * @return float|array Actual answer which is between -1 and +1, or the full result array when backTracking is enabled in Common::backTrack.
 	 **/
 	public function getAnswer(array $data, float $result = null) {
 		if (isset($data['_result']) && is_null($result)) {
@@ -235,6 +251,7 @@ class Brain {
 		$data = $newData;
 
 		if (!is_null($result) && ($result < -1 || $result > 1)) {							// simply ignore an invalid result
+			Common::trace("ignoring invalid result of $result", Common::DEBUG_WARNING);
 			$result = null;
 		}
 
@@ -266,7 +283,7 @@ class Brain {
 
 		if ((is_null($best) || 
 			($best['rating'] < Link::BASE_RATING - 0.2 &&
-			 count($this->masters) < 10)) &&												// avoid creating too many new masters
+			 count($this->masters) < 5)) &&												// avoid creating too many new masters
 			!is_null($result)) {															// encourage branching for parallel operations and precision
 			$master = $this->newMaster($data, $result);
 			$response = $master->getAnswer($data, $result);
@@ -276,8 +293,10 @@ class Brain {
 			}
 		}
 
-		$this->maxSteps = max($this->maxSteps, $best['steps']);
-		$this->minSteps = min($this->minSteps, $best['steps']);
+		if (!empty($best) && is_numeric($best['steps'])) {
+			$this->maxSteps = max($this->maxSteps, $best['steps']);
+			$this->minSteps = min($this->minSteps, $best['steps']);
+		}
 
 		if (!is_null($result) && (is_null($best) || !Common::isSameAnswer($best['answer'], $result))) {
 			throw new Exception("Learning failed and this should not happen.  Please report this issue for troubleshooting!");

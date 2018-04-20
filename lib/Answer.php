@@ -20,7 +20,6 @@ class Answer {
 	private $answerCount = 0;
 
 	/** @var string $data We keep a copy of the data record in serialized array to be used if we have to be replaced by a Condition. */
-	private $data = null;
 
 
 	/**
@@ -29,7 +28,7 @@ class Answer {
 	 * @return array Array of properties to export.
 	 **/
 	public function __sleep() {
-		return ['answerTotal', 'answerCount', 'data'];
+		return ['answerTotal', 'answerCount'];
 	}
 
 
@@ -41,14 +40,6 @@ class Answer {
 	 **/
 	public function __get(string $name) {
 		switch ($name) {
-			case "data":
-				if (is_null($this->data)) {
-					return null;
-				}
-
-				return unserialize($this->data);
-				break;
-
 			case "result":
 				if (!$this->answerCount) {
 					return null;
@@ -76,9 +67,6 @@ class Answer {
 	 **/
 	public function upgrade(int $version) {
 		if ($version < 41) {
-			if (!is_null($this->data) && is_array($this->data)) {
-				$this->data = serialize($this->data);
-			}
 		}
 	}
 
@@ -100,11 +88,7 @@ class Answer {
 		if (!is_null($result)) {
 			$same = false;
 
-			if (is_null($this->data)) {
-				$this->data = serialize($data);														// keep a copy for reference (serialized to save lots of RAM)
-			}
-
-			if (!$this->answerCount || ($same = Common::isSameAnswer($this->answerTotal / $this->answerCount, $result))) {
+			if (!$this->answerCount || ($same = Common::isSameAnswer($this->result, $result))) {
 				$this->answerTotal += $result;												// fine tune or set answer
 				$this->answerCount ++;
 				$same = true;

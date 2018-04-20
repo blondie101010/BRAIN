@@ -44,6 +44,7 @@ class Condition {
 	 * @return Condition new Condition instance
 	 **/
 	public function __construct(array $data) {
+		$this->id = Common::$seq ++;
 		$field = array_rand($data);										 					// get a random field
 
 		if (is_array($data[$field]) && !is_string($data[$field][0]) && rand(1, 3) == 1) {	// progression analysis
@@ -84,13 +85,6 @@ class Condition {
 					$this->field1 = null;
 					break;
 			}
-		}
-// TODO: move ge and lt in constructor, remove default, do a conversion update to ensure all records have them set, and remove their condition in update()
-// TODO: also, during the upgrade, remove the useless conditions to do a quick cleanup
-
-		if (is_null($this->lt)) { 															// create Link nodes for the two possibilities:  >=, or <
-			$this->ge = new Link();
-			$this->lt = new Link();
 		}
 	}
 
@@ -237,13 +231,16 @@ class Condition {
 	 * @return array Array of 'answer', 'steps', 'experience' obtained from our link or null if unknown.
 	 **/
 	public function getAnswer(array $data, float $result = null) {
+//echo "aa\n";
 		// firstly determine which values to compare
 		$values = [];
 
 		if (!isset($data[$this->field0])) {
+//echo "ab\n";
 			return null;																	// our field is absent, so we can not have a valid answer
 		}
 
+//echo "ac\n";
 		if (is_null($this->field1)) {
 			$values[0] = $this->value;
 			$values[1] = $data[$this->field0];
@@ -264,6 +261,12 @@ class Condition {
 			}
 		}
 
+		if (is_null($this->ge)) {
+	 		// create Link nodes for the two possibilities:  >=, or <
+			$this->ge = new Link();
+			$this->lt = new Link();
+		}
+
 		$linkKey = self::compare($values);
 
 		if ($linkKey == '>=') {
@@ -273,8 +276,11 @@ class Condition {
 			$link = $this->lt;
 		}
 
+//echo "ad; linkKey: $linkKey\n";
+//var_dump($data);
 		$response = $link->getAnswer($data, $result);
 
+//echo "ae\n";
 		if (!is_null($response)) {
 			if (!is_null($result)) {
 				if ($linkKey == '>=') {
