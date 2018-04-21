@@ -54,7 +54,7 @@ Here is a simple script to Feed a data file to the BRAIN:
     $brain = new Brain($brainName, $site, $brainPath);
     $feeder = new Feeder($brain, Feeder::MODE_TEST_AND_LEARN, $skip, $batchSize, $sample);
 
-    echo "Processing $inputfile.  Send SIGTERM to end cleanly (and therefore store new learnings).\n";
+    echo "Processing $inputFile.  Send SIGTERM to end cleanly (and therefore store new learnings).\n";
     $feeder->processFile($inputFile);
 
 You can use a simple `composer.json` such as:
@@ -133,6 +133,13 @@ In order to demonstrate how the BRAIN works and provide a sample script, here is
 
     file_put_contents($outputFile, $data);
     
+So to test the BRAIN's demo, you basically run the data generator, and then the feeding script on that data file.  The above code will use `./demo.dat` for the demo input data file (to which the data generator writes).  
+
+When you run the feeding script, you'll notice a lot of traces that indicate how it is processing the data.  It basically runs a pass on the batch size requested, then it works on the records which were not learned correctly until it reaches a certain level, retests the whole batch (B test), and if the result is acceptable, it moves to the next batch.  The demo does batches of 25K records while there are 50K records in the data file, so it does two batches when you run it.
+
+As you'll see, the more it progresses the higher and more stable are the different test results.
+
+
 ## Support
 
 There isn't yet a defined support channel other than github here, but we plan on opening a support channel on IRC if there is a demand for it.  Those interested may be able to reach me on FreeNode IRC under the nickname `blondie101010`.
