@@ -101,7 +101,6 @@ In order to demonstrate how the BRAIN works and provide a sample script, here is
      * Note that we DO NOT believe that the race or ear size have any impact on the criminality level, and some green guys are really nice.
      */
 
-
     // Use ridiculous criteria to evaluate the risk of someone being a murderer in order to test the learning algorithm in a   consistant fashion.
     function rateCriminality(array $person) {
         $result = rand(1, 2);  // base crime level
@@ -127,7 +126,6 @@ In order to demonstrate how the BRAIN works and provide a sample script, here is
        $person= ['race' => array_rand($colors), 'eyeColor' => array_rand($colors),
                  'earSize' => rand(3, 9), 'age' => rand(1, 60)];
 
-       // adjust result to be between -1 and +1 for the Brain
       $person['_result'] = rateCriminality($person);
 
       $data .= serialize($person) . "\n";
