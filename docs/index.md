@@ -160,6 +160,7 @@ Once the problem became recurrent on a huge personal BRAIN, multiple tests to pu
 
 ## Future
 
+- Get the `Feeder` to produce an output file if in `FEEDER::MODE_TEST_ONLY` mode, and make it run a test pass first in `FEEDER::MODE_TEST_AND_LEARN` mode if the BRAIN already exists.
 - Implement an automated unit testing.
 - Adding options to change arbitrary thresholds, mainly related to the cleanup process.
 - Additional trend analysis may be added in the Condition, but a lot of benchmarks need to be done to see if it would be beneficial since it is already quite efficient in finding patterns and varying the rules could offer very little improvement.
