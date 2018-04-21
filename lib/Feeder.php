@@ -157,8 +157,8 @@ class Feeder {
 		if ($this->mode == self::MODE_LEARN_ONLY) {
 			$testMode = false;
 		}
-		elseif ($this->mode == self::MODE_TEST_ONLY && !$testMode) {
-			throw new Exception("Test mode is not possible on a new BRAIN!\n");
+		else {
+			$testMode = true;
 		}
 
 		Common::trace("reading file $inputFile", Common::DEBUG_INFO);
