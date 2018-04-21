@@ -107,12 +107,12 @@ In order to demonstrate how the BRAIN works and provide a sample script, here is
 
         if ($person['race'] == 2 && ($person['eyeColor'] == 1 || $person['earSize'] >= 6) && $person['age'] >= 15) {
            $result += rand(6, 7);
-       }
-       elseif ($person['race'] == 3 && $person['earSize'] > 4) {  // arbitrary rules to fill the middle result (close to 0)
+        }
+        elseif ($person['race'] == 3 && $person['earSize'] > 4) {  // arbitrary rules to fill the middle result (close to 0)
            $result = 5.0;
-       }
+        }
 
-       // adjust result to be between -1 and +1 for the Brain
+        // adjust result to be between -1 and +1 for the Brain
         return $result * 0.2 - 1;
     }
 
@@ -126,9 +126,9 @@ In order to demonstrate how the BRAIN works and provide a sample script, here is
        $person= ['race' => array_rand($colors), 'eyeColor' => array_rand($colors),
                  'earSize' => rand(3, 9), 'age' => rand(1, 60)];
 
-      $person['_result'] = rateCriminality($person);
+       $person['_result'] = rateCriminality($person);
 
-      $data .= serialize($person) . "\n";
+       $data .= serialize($person) . "\n";
     }
 
     file_put_contents($outputFile, $data);
