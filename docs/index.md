@@ -28,7 +28,7 @@ BRAIN was developed as a mean to optimize multi-variant prediction making.  Afte
 
 All that is needed to get BRAIN to make predictions is to provide it as much data as possible with the actual outcome.  Then you can provide new data and ask it for the expected outcome.  The BRAIN's answer is relative to the provided real outcomes.
 
-While it does not know anything about reality, it can take various data from the past, along with their real outcome, and make rules that allow it to predict the future with new data.
+While it does not know anything about reality, it can take various data from the past, along with their real outcome, and make rules that allow it to predict the future with new data or any extrapolation based on your data's real outcome.
 
 
 ## Applications
@@ -39,7 +39,7 @@ Its domain of application is extremely vast and can include human behaviour, eng
 
 Its efficiency resides in the data that is fed to it.  You can not expect it to predict something based on data which doesn't show the event happening multiple times.
 
-Its precision on the long run far exceeds the limits of statistical analysis.
+BRAIN's precision on the long run far exceeds the limits of statistical analysis.
 
 
 ## Input caracteristics
@@ -57,9 +57,9 @@ While adding and removing input fields, or changing their data types is supporte
 
 ## Outcome description
 
-The real outcome is refered to as $result in the code and must be between -1 and +1 where 0 is the closest to undefined or null.  A result of 1 would typically be the utmost yes, 0 would be neutral and -1 would be a definite no.  Internally, the BRAIN will consider input $result to be in 3 categories:  -1 <= $result < -0.33, -0.33 <= $result <= 0.33, 0.33 < $result <= 1
+The real outcome is refered to as `$result` in the code and must be between `-1` and `+1` where `0` is the closest to undefined or null.  A result of `1` would typically be the utmost yes, `0` would be neutral and `-1` would be a definite no.  Internally, the BRAIN will consider input $result to be in 3 categories:  `-1 <= $result < -0.33, -0.33 <= $result <= 0.33, 0.33 < $result <= 1`
 
-Learned variances in the 3 resulting outcome categories will affect the average of that outcome.  This allows for more precise answers.  For example, if we want to predict profit, we start by defining it on the -1 to +1 scale.  Whilst it could be defined as:
+Learned variances in the 3 resulting outcome categories will affect the average of that outcome.  This allows for more precise answers.  For example, if we want to predict profit, we start by defining it on the `-1` to `+1` scale.  Whilst it could be defined as:
 - -1 = lose everything<br/>
 - 0 = being even<br/>
 - 1 = doubling the investment<br/>
@@ -72,7 +72,7 @@ Learned variances in the 3 resulting outcome categories will affect the average 
 
 ## Learning process
 
-The BRAIN passes the input data to its master Link nodes along with the provided outcome.  If a Link node detects that the answer it would have provided is different than the outcome, it replaces the answer with a Condition node which will make a rule based on the data.
+The BRAIN passes the input data to its master Link nodes along with the provided outcome.  If a `Link` (node connector) detects that the answer it would have provided is different than the outcome, it replaces the `Answer` with a `Condition` node which will make a rule based on the current data record.
 
 
 ## Back-track mode
@@ -111,6 +111,7 @@ BRAIN's environment is or can be:
 `name` is used for the file name, and `site` is used for the internal master node IDs to allow chain exchanges with peers
 
 `$brain->getAnswer($dataRecord, $result);`
+
 Note that the result is only needed to learn.
 
 
@@ -144,13 +145,17 @@ BRAIN is a self-enclosed system which doesn't take any dependencies from the out
 
 ## Current status
 
-A stable release is planned in the next few days and will include a test data generator and learning script.
+A stable release is planned tomorrow and includes a test data generator and learning script.
 
 Note that back-tracking should be functional but is not yet tested.
 
 ### Known issues
 
-The only operational problem encountered during testing of this release is an occasional segmentation fault of the PHP engine when running a learning job on a 4M node BRAIN.  This issue is under investigation and an independent test script with similar behaviours has been developed to clarify it.  Although the root cause has not been identified yet, it was found to only affect certain installations (distros) and be independent of the PHP build itself.  It is likely related to a system library that remains to be identified.  The bug is therefore not in the script.
+The only operational problem encountered during testing of this release is an occasional segmentation fault of the PHP engine when running a learning job on a 4M node BRAIN.  This issue is under investigation and independent test scripts with similar behaviours have been developed to clarify it.  
+
+Note that these issues (almost) never show up when running smaller applications which in itself can give insight on the actual bug, likely an error in buffer control in the low-level components.
+
+Once the problem became recurrent on a huge personal BRAIN, multiple tests to push the limits of the PHP engine were made, and it soon become fairly easy to make test scripts that were able to cause the PHP engine to have segmentation faults.  On a positive note, **most** of these were fixed in PHP 7.2.4.
 
 
 ## Future
@@ -158,3 +163,4 @@ The only operational problem encountered during testing of this release is an oc
 - Implement an automated unit testing.
 - Adding options to change arbitrary thresholds, mainly related to the cleanup process.
 - Additional trend analysis may be added in the Condition, but a lot of benchmarks need to be done to see if it would be beneficial since it is already quite efficient in finding patterns and varying the rules could offer very little improvement.
+- Implement some kind of Connector interface between the Feeder and the Brain, which would open doors like making a BRAIN run as a daemon, as well as defining various data feed handlers.
