@@ -65,8 +65,7 @@ class Brain {
 
 		$this->path = $path;
 
-		if (!directory_exists($path)) {
-			shell("mkdir -p $path");
+		if (!is_dir($path)) {
 			mkdir($path, 0777, true);
 		}
 
