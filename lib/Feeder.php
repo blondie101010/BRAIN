@@ -33,7 +33,7 @@ class Feeder {
 	 * Feeder constructor.
 	 *
 	 * @param Brain $brain Brain instance to feed / interact with.
-	 * @param int $mode Mode of operation to define if we test or learn, based on the above MODE_* constants.
+	 * @param int $mode Mode of operation to define if we test or learn, based on the above self::MODE_* constants.
 	 * @param int $skip Number of lines (records) to skip from the beginning of the data (file).
 	 * @param int $batchSize Number of lines (records) to use in a batch.  This is a choice between speed and quality.  Bigger batches improve the learning quality but usually takes longer.
 	 * @param bool $sample Whether to only read subsets of the records (true) or not (false).  This is most useful when you feed records that are regrouped or organized to a baby BRAIN.
@@ -79,7 +79,7 @@ class Feeder {
  	 * @return array Array of data that the Brain failed on.
  	 **/
 	protected function processDataBlock(array $data, bool $testMode = false, array $failed = null, $label = "") {
-		if ($testMode && $this->mode == MODE_LEARN_ONLY) {
+		if ($testMode && $this->mode == self::MODE_LEARN_ONLY) {
 			return $this->processDataBlock($data, false, $failed, $label);
 		}
 
@@ -127,7 +127,7 @@ class Feeder {
 
 				$total = $good = 0;
 
-				if ($score == 100.0 || $this->mode == MODE_TEST_ONLY) {
+				if ($score == 100.0 || $this->mode == self::MODE_TEST_ONLY) {
 					return [];																	// already a perfect round
 				}
 				else {
@@ -154,9 +154,10 @@ class Feeder {
 			throw new Exception("Error opening $inputFile!\n");
 		}
 
-		$testMode = file_exists("$brainPath/Brain-$brainName.dat");							// we wouldn't be here if learning was not allowed
-
-		if ($this->mode == MODE_TEST_ONLY && !$testMode) {
+		if ($this->mode == self::MODE_LEARN_ONLY) {
+			$testMode = false;
+		}
+		elseif ($this->mode == self::MODE_TEST_ONLY && !$testMode) {
 			throw new Exception("Test mode is not possible on a new BRAIN!\n");
 		}
 
@@ -203,7 +204,7 @@ class Feeder {
 			while ($this->status == 'O' && !empty($contents)) {								// learn until we reach a good level
 				$contents = $this->processDataBlock($contents, $testMode, [], "A");
 
-				if ($this->mode == MODE_TEST_ONLY) {
+				if ($this->mode == self::MODE_TEST_ONLY) {
 					break;
 				}
 

@@ -44,7 +44,6 @@ class Condition {
 	 * @return Condition new Condition instance
 	 **/
 	public function __construct(array $data) {
-		$this->id = Common::$seq ++;
 		$field = array_rand($data);										 					// get a random field
 
 		if (is_array($data[$field]) && !is_string($data[$field][0]) && rand(1, 3) == 1) {	// progression analysis
