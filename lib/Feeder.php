@@ -455,5 +455,3 @@ $todoLineCount ++;
 
 
 fclose($fp);
-
-}
