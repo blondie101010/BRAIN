@@ -2,7 +2,7 @@
 
 Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction system.
 
-**Important note:  Do not touch it yet as the official release of this beta version is in progress and will be complete tomorrow.**
+**Important note:  This presently being released. While there may still be a few glitches during the integration testing, it already seems stable now.**
 
 This document is a simple introduction to the system.  For more details, consult the [BRAIN manual](https://blondie101010.github.io/BRAIN/).
 
@@ -35,6 +35,12 @@ Parameters:
 
 Here is a simple script to Feed a data file to the BRAIN:
 
+    require "vendor/autoload.php";
+    
+    use \Blondie101010\Brain\Common;
+    use \Blondie101010\Brain\Brain;
+    use \Blondie101010\Brain\Feeder;
+
     Common::$debug = Common::DEBUG_INFO;  // make useful messages visible to see how it progresses
 
     $inputFile = "demo.dat";
@@ -43,13 +49,41 @@ Here is a simple script to Feed a data file to the BRAIN:
     $brainPath = "./data";
     $skip = 0;
     $sample = false;
-    $batchSize = 500;
+    $batchSize = 25000;
 
     $brain = new Brain($brainName, $site, $brainPath);
     $feeder = new Feeder($brain, Feeder::MODE_TEST_AND_LEARN, $skip, $batchSize, $sample);
 
-    echo "Processing $inputfile.  Send SIGTERM to end cleanly (and therefore store new learnings).";
+    echo "Processing $inputfile.  Send SIGTERM to end cleanly (and therefore store new learnings).\n";
     $feeder->processFile($inputFile);
+
+You can use a simple `composer.json` such as:
+
+    {
+        "name": "blondie101010/yobit",
+        "description": "BRAIN demo",
+        "license": "LGPL-3",
+        "authors": [
+            {
+                "name": "Julie Pelletier",
+                "email": "notshownhere@hotmail.com"
+            }
+        ],
+        "keywords": [
+            "BRAIN", "AI", "demo"
+        ],
+        "repositories": [
+            {
+                "type": "vcs",
+                "url": "https://github.com/blondie101010/brain.git"
+            }
+        ],
+        "require-dev": {
+            "blondie101010/brain": "dev-master"
+        },
+        "minimum-stability": "dev"
+    }
+
 
 In order to demonstrate how the BRAIN works and provide a sample script, here is the code to use to generate test data:
 
@@ -70,12 +104,12 @@ In order to demonstrate how the BRAIN works and provide a sample script, here is
 
     // Use ridiculous criteria to evaluate the risk of someone being a murderer in order to test the learning algorithm in a   consistant fashion.
     function rateCriminality(array $person) {
-        $result = rand(1, 2);                                                                   // base crime level
+        $result = rand(1, 2);  // base crime level
 
         if ($person['race'] == 2 && ($person['eyeColor'] == 1 || $person['earSize'] >= 6) && $person['age'] >= 15) {
            $result += rand(6, 7);
        }
-       elseif ($person['race'] == 3 && $person['earSize'] > 4) {                               // arbitrary rules to fill the middle result (close to 0)
+       elseif ($person['race'] == 3 && $person['earSize'] > 4) {  // arbitrary rules to fill the middle result (close to 0)
            $result = 5.0;
        }
 
