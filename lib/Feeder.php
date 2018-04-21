@@ -154,12 +154,7 @@ class Feeder {
 			throw new Exception("Error opening $inputFile!\n");
 		}
 
-		if ($this->mode == self::MODE_LEARN_ONLY) {
-			$testMode = false;
-		}
-		else {
-			$testMode = true;
-		}
+		$testMode = false;																	// always start by learning to make things simple
 
 		Common::trace("reading file $inputFile", Common::DEBUG_INFO);
 
@@ -182,7 +177,7 @@ class Feeder {
 				}
 			}
 
-			$this->skip = 0;																		// we're done skipping (unless sample is non-zero)
+			$this->skip = 0;																// we're done skipping (unless sample is non-zero)
 
 			for ($j = 0; $j < $this->batchSize; $j ++) {
 				if (($line = fgets($fp)) === FALSE) {
@@ -216,7 +211,9 @@ class Feeder {
 					$lastFailed = $contents;
 				}
 
-				$testMode = true;
+				if ($this->mode != self::MODE_LEARN_ONLY) {
+					$testMode = true;
+				}
 
 				if (count($contents)) {
 					$allFailed = array_unique(array_merge($contents, $allFailed));
