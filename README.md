@@ -2,7 +2,7 @@
 
 Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction system.
 
-**Important note:  this is not production ready.  A bug fix update will be released in the next few days along with a demo data generator and learning script.**
+**Important note:  Do not touch it yet as the official release of this beta version is in progress and will be complete tomorrow.**
 
 This document is a simple introduction to the system.  For more details, consult the [BRAIN manual](https://blondie101010.github.io/BRAIN/).
 
@@ -33,4 +33,78 @@ Parameters:
 
 #### Batch processing with the `Feeder` class
 
-update to come in a few days with the full release
+Here is a simple script to Feed a data file to the BRAIN:
+
+    Common::$debug = Common::DEBUG_INFO;  // make useful messages visible to see how it progresses
+
+    $inputFile = "demo.dat";
+    $brainName = "demoBrain";
+    $site = "A";  // site identifier, for future use
+    $brainPath = "./data";
+    $skip = 0;
+    $sample = false;
+    $batchSize = 500;
+
+    $brain = new Brain($brainName, $site, $brainPath);
+    $feeder = new Feeder($brain, Feeder::MODE_TEST_AND_LEARN, $skip, $batchSize, $sample);
+
+    echo "Processing $inputfile.  Send SIGTERM to end cleanly (and therefore store new learnings).";
+    $feeder->processFile($inputFile);
+
+In order to demonstrate how the BRAIN works and provide a sample script, here is the code to use to generate test data:
+
+    $outputFile = "demo.dat";
+
+    /*
+     * Data set builder for a simple potential murderer profiler.
+     *
+     * In order to validate the BRAIN's operations, we need to make sure the criteria used can not be misleading,
+     * so we'll make rules to define a potential murderer: green race with (blue eyes or big ears) and >= 15 years old
+     *
+     * The result will be based on the most intensive crime they did which is on a scale of 1-10 where 5 is a fairly small
+     * misdemeanor and 7 is a severe agression which could be fatal.
+     *
+     * Note that we DO NOT believe that the race or ear size have any impact on the criminality level, and some green guys are really nice.
+     */
+
+
+    // Use ridiculous criteria to evaluate the risk of someone being a murderer in order to test the learning algorithm in a   consistant fashion.
+    function rateCriminality(array $person) {
+        $result = rand(1, 2);                                                                   // base crime level
+
+        if ($person['race'] == 2 && ($person['eyeColor'] == 1 || $person['earSize'] >= 6) && $person['age'] >= 15) {
+           $result += rand(6, 7);
+       }
+       elseif ($person['race'] == 3 && $person['earSize'] > 4) {                               // arbitrary rules to fill the middle result (close to 0)
+           $result = 5.0;
+       }
+
+       // adjust result to be between -1 and +1 for the Brain
+        return $result * 0.2 - 1;
+    }
+
+
+    $colors = ['red', 'blue', 'green', 'purple'];
+    $data = "";
+
+    for ($i = 0; $i < 50000; $i ++) {
+       $result = 0;
+
+       $person= ['race' => array_rand($colors), 'eyeColor' => array_rand($colors),
+                 'earSize' => rand(3, 9), 'age' => rand(1, 60)];
+
+       // adjust result to be between -1 and +1 for the Brain
+      $person['_result'] = rateCriminality($person);
+
+      $data .= serialize($person) . "\n";
+    }
+
+    file_put_contents($outputFile, $data);
+    
+## Support
+
+There isn't yet a defined support channel other than github here, but we plan on opening a support channel on IRC if there is a demand for it.  Those interested may be able to reach me on FreeNode IRC under the nickname `blondie101010`.
+
+If you notice any issues or have a suggestion, be assured that all constructive comments are welcome.
+
+Commercial development and support arrangements are possible on demand.
