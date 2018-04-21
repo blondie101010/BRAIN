@@ -164,32 +164,26 @@ class Feeder {
 
 		$difficult = [];
 
-		$initSkip = $skip;
-
-		$todoLineCount = 0;
+		$this->initSkip = $this->skip;
 
 		for ($i = 0; $this->status == 'O'; $i ++) {
 			Common::trace("current batch: $i", Common::DEBUG_INFO);
 			$contents = [];
 
-			if ($sample || $skip) {
-				$skip = $initSkip;															// skip records after every batch we process
-				Common::trace("skipping $skip records", Common::DEBUG_INFO);
+			if ($this->sample || $this->skip) {
+				$this->skip = $initSkip;													// skip records after every batch we process
+				Common::trace("skipping $this->skip records", Common::DEBUG_INFO);
 			}
 
-			for (; $skip > 0; $skip --) {
+			for (; $this->skip > 0; $this->skip --) {
 				if (fgets($fp) === FALSE) {
 					break 2;
 				}
-
-$todoLineCount ++;
 			}
 
-			Common::trace("now at line $todoLineCount", Common::DEBUG_INFO);
+			$this->skip = 0;																		// we're done skipping (unless sample is non-zero)
 
-			$skip = 0;																		// we're done skipping (unless sample is non-zero)
-
-			for ($j = 0; $j < $batchSize; $j ++) {
+			for ($j = 0; $j < $this->batchSize; $j ++) {
 				if (($line = fgets($fp)) === FALSE) {
 					if (!$j) {																// for some reason we got no data
 						break 2;
@@ -199,8 +193,6 @@ $todoLineCount ++;
 				}
 
 				$contents[] = $line;
-
-$todoLineCount ++;
 			}
 
 			$allFailed = $lastFailed = [];
