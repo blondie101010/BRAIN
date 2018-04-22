@@ -2,8 +2,6 @@
 
 Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction system.
 
-**Important note:  This presently being released. While there may still be a few glitches during the integration testing, it already seems stable now.**
-
 This document is a simple introduction to the system.  For more details, consult the [BRAIN manual](https://blondie101010.github.io/BRAIN/).
 
 ## Usage
@@ -142,7 +140,7 @@ As you'll see, the more it progresses the higher and more stable are the differe
 
 ## Support
 
-There isn't yet a defined support channel other than github here, but we plan on opening a support channel on IRC if there is a demand for it.  Those interested may be able to reach me on FreeNode IRC under the nickname `blondie101010`.
+There isn't yet a defined support channel other than github here, but we plan on opening a support channel on IRC if there is a demand for it.  Those interested may be able to reach me on FreeNode IRC under the nickname `blondie101010` or on [Glitter](https://gitter.im/Blondie101010-BRAIN/).
 
 If you notice any issues or have a suggestion, be assured that all constructive comments are welcome.
 
