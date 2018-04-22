@@ -145,15 +145,13 @@ BRAIN is a self-enclosed system which doesn't take any dependencies from the out
 
 ## Current status
 
-A stable release is planned tomorrow and includes a test data generator and learning script.
+The BRAIN's release is now complete.
 
 Note that back-tracking should be functional but is not yet tested.
 
 ### Known issues
 
 The only operational problem encountered during testing of this release is an occasional segmentation fault of the PHP engine when running a learning job on a 4M node BRAIN.  This issue is under investigation and independent test scripts with similar behaviours have been developed to clarify it.  
-
-Note that these issues (almost) never show up when running smaller applications which in itself can give insight on the actual bug, likely an error in buffer control in the low-level components.
 
 Once the problem became recurrent on a huge personal BRAIN, multiple tests to push the limits of the PHP engine were made, and it soon become fairly easy to make test scripts that were able to cause the PHP engine to have segmentation faults.  On a positive note, **most** of these were fixed in PHP 7.2.4.
 
