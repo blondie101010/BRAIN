@@ -35,6 +35,8 @@ Parameters:
 - $dataRecord: array of fields.  See [BRAIN manual: Input characteristics](https://blondie101010.github.io/BRAIN/#input-caracteristics) for more details.
 - $result: value between -1 and +1.  It is evaluated in 3 states: close to -1, close to 0, and close to +1.  `0` typically refers to something like average or unknown.  See [BRAIN manual: Outcome description](https://blondie101010.github.io/BRAIN/#outcome-description) for more details.
 
+Note that the result can also be included in the `$dataRecord['_result']` special field which is treated exactly as the `$result` parameter, but `$result` takes precedence if present and not null.
+
 
 #### Batch processing with the `Feeder` class
 
@@ -116,6 +118,11 @@ When you run the feeding script, you'll notice a lot of traces that indicate how
 
 As you'll see, the more it progresses the higher and more stable are the different test results.
 
+### Getting the answer
+
+The answer is obtained exactly the same way as it is learned.  To get the answer from a data record, you simply don't provide the actual result.  So you call `getAnswer()` with no second parameter and the `$dataRecord` doesn't contain a `'_result'` field.
+
+    $answer = $brain->getAnswer($dataRecord);
 
 ## Support
 
