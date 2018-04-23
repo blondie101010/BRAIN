@@ -1,12 +1,19 @@
 # BRAIN
 
-Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction system.
+Binary Reasoning Artificial Intelligence Network - A self-enclosed prediction / extrapolation system.
 
 This document is a simple introduction to the system.  For more details, consult the [BRAIN manual](https://blondie101010.github.io/BRAIN/).
+
+## Installation
+
+BRAIN is now in Packagist, so it can be installed with composer as:
+
+    composer require blondie101010/brain
 
 ## Usage
 
 ### Instanciation
+
     $brain = new \Blondie101010\Brain\Brain(string $name, string $site, string $brainPath = "./data");
 
 Parameters:
@@ -54,34 +61,6 @@ Here is a simple script to Feed a data file to the BRAIN:
 
     echo "Processing $inputFile.  Send SIGTERM to end cleanly (and therefore store new learnings).\n";
     $feeder->processFile($inputFile);
-
-You can use a simple `composer.json` such as:
-
-    {
-        "name": "blondie101010/yobit",
-        "description": "BRAIN demo",
-        "license": "LGPL-3",
-        "authors": [
-            {
-                "name": "Julie Pelletier",
-                "email": "notshownhere@hotmail.com"
-            }
-        ],
-        "keywords": [
-            "BRAIN", "AI", "demo"
-        ],
-        "repositories": [
-            {
-                "type": "vcs",
-                "url": "https://github.com/blondie101010/brain.git"
-            }
-        ],
-        "require-dev": {
-            "blondie101010/brain": "dev-master"
-        },
-        "minimum-stability": "dev"
-    }
-
 
 In order to demonstrate how the BRAIN works and provide a sample script, here is the code to use to generate test data:
 
