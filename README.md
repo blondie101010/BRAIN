@@ -126,7 +126,7 @@ The answer is obtained exactly the same way as it is learned.  To get the answer
 
 ## Support
 
-There isn't yet a defined support channel other than github here, but we plan on opening a support channel on IRC if there is a demand for it.  Those interested may be able to reach me on FreeNode IRC under the nickname `blondie101010` or on [Glitter](https://gitter.im/Blondie101010-BRAIN/).
+There isn't yet a defined support channel other than github here, but we plan on opening a support channel on IRC if there is a demand for it.  Those interested may be able to reach me on FreeNode IRC under the nickname `blondie101010` or on [Gitter](https://gitter.im/Blondie101010-BRAIN/).
 
 If you notice any issues or have a suggestion, be assured that all constructive comments are welcome.
 
