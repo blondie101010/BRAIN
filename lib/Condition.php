@@ -44,12 +44,13 @@ class Condition {
 	 * @return Condition new Condition instance
 	 **/
 	public function __construct(array $data) {
-		$field = array_rand($data);										 					// get a random field
+        $field = array_rand($data);										 		            // get a random field
 
 		if (is_array($data[$field]) && !is_string($data[$field][0]) && rand(1, 3) == 1) {	// progression analysis
-			// define fields for comparison which includes the progression analysis types
 			$this->field0 = $field;
-			$this->field1 = rand(1, 2) == 1 ? "_+" : "_*";			 						// define fields for comparison which includes the progression analysis type
+			// define fields for comparison which includes the progression analysis types
+			$types = ["_+", "_*", "_m", "_M"];                                              // arithmetic progression, geometric progression, min, max
+			$this->field1 = $types[rand(1, 4)];			 						            // define the progression analysis type
 
 			$this->value = self::getProgression($data[$field], $this->field1[1]);
 		}
@@ -117,24 +118,49 @@ class Condition {
 	/**
 	 * Calculate the the progression of an array.
 	 *
-	 * @param array $values Values for which to calculate the progression.
-	 * @param string $type '+' for arithmetic or '*' for geometric.
+	 * @param array|float $values Values for which to calculate the progression, accepting single floats.
+	 * @param string $type '+' for arithmetic, '*' for geometric, 'm' for minimum, and 'M' for maximum.
 	 * @return float The computed progression factor.
 	 **/
 	public static function getProgression($values, string $type) {
-		if ($type != '+' && $type != '*') {
-			throw ProgrammingException("getProgression() type must be either '+' or '*'");
+		if (!in_array($type, ['+', '*', 'm', 'M'])) {
+			throw ProgrammingException("getProgression() type must be either '+', '*', 'm', and 'M'");
 		}
 
 		if (!is_array($values)) {
-			if ($type == '+') {
-				return 0;
-			}
-			else {
-				return 1;
-			}
+		    switch ($type) {
+		        case '+':
+		            return 0;
+		            break;
+		            
+		        case '*':
+		            return 1;
+		            break;
+		        
+		        default:
+		            return $values;
+		    }
 		}
 
+        // deal with min / max
+		if (strtoupper($type) == 'M') {
+		    $min = PHP_INT_MAX;
+		    $max = PHP_INT_MIN;
+		    
+		    foreach ($values as $value) {
+		        $min = min($min, $value);
+		        $max = max($max, $value);
+		    }
+		    
+		    if ($type == 'm') {
+		        return $min;
+		    }
+		    else {
+		        return $max;
+		    }
+		}
+
+		// deal with math progression
 		$diffTotal = 0;
 		$diffCount = count($values);
 

@@ -151,7 +151,7 @@ class Feeder {
  	**/
 	public function processFile(string $inputFile) {
 		if (!($fp = fopen($inputFile, "r"))) {
-			throw new Exception("Error opening $inputFile!\n");
+			throw new \Exception("Error opening $inputFile!\n");
 		}
 
 		$testMode = false;																	// always start by learning to make things simple
@@ -167,7 +167,7 @@ class Feeder {
 			$contents = [];
 
 			if ($this->sample || $this->skip) {
-				$this->skip = $initSkip;													// skip records after every batch we process
+				$this->skip = $this->initSkip;													// skip records after every batch we process
 				Common::trace("skipping $this->skip records", Common::DEBUG_INFO);
 			}
 

@@ -190,8 +190,6 @@ class Brain {
 
 		$newArr = [];
 
-		$args = func_get_args();
-
 		foreach ($arrs[0] as $key => $val) {
 			$newArr[$key] = [];
 			foreach ($arrs as $arr) {
@@ -264,7 +262,7 @@ class Brain {
 
 		$best = null;
 		$totalSteps = 0;
-		foreach ($this->masters as $id => $master) {
+		foreach ($this->masters as $master) {
 			$response = $master->getAnswer($data, $result);
 
 			if (!is_null($response)) {
@@ -298,7 +296,7 @@ class Brain {
 		}
 
 		if (!is_null($result) && (is_null($best) || !Common::isSameAnswer($best['answer'], $result))) {
-			throw new Exception("Learning failed and this should not happen.  Please report this issue for troubleshooting!");
+			throw new \Exception("Learning failed and this should not happen.  Please report this issue for troubleshooting!");
 		}
 
 		if (Common::$backTrack) {
