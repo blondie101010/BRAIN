@@ -17,7 +17,7 @@ namespace Blondie101010\Brain;
  * 			$brain->getAnswer($dataRecord, $result);										// where the result is only needed to learn
  **/
 class Brain {
-	const LATEST_VERSION = 44;																// latest version to determine if an upgrade is needed
+	const LATEST_VERSION = 45;																// latest version to determine if an upgrade is needed
 
 	/** @var array $masters Master Link nodes.  There is only one unless incompatible data is encountered in the current master Link. */
 	private $masters = [];
@@ -47,6 +47,9 @@ class Brain {
 	/** @var int $maxSteps Maximum number of steps needed to get an Answer in a master chain.  This is only for debugging. */
 	private $maxSteps = 0;
 
+	/** @var int $serializationMode serialization mode for the BRAIN's internal file format. */
+	private $serializationMode;
+
 	/** @var int $minSteps Minimum number of steps needed to get an Answer in a master chain.  This is only for debugging. */
 	private $minSteps = PHP_INT_MAX;
 
@@ -69,16 +72,30 @@ class Brain {
 			mkdir($path, 0777, true);
 		}
 
-		if (file_exists("$path/Brain-$name.dat")) {
-			$data = unserialize(file_get_contents("$path/Brain-$name.dat"));
+		$filename = "$path/Brain-$name.dat";
+
+		if (file_exists($filename)) {
+			$this->serializationMode = Common::detectSerialization($filename);
+
+			if ($this->serializationMode == Common::SERIALIZATION_CLASSIC) {
+				$serializer = "serialize";
+				$unserializer = "unserialize";
+			}
+			else {
+				$serializer = "igbinary_serialize";
+				$unserializer = "igbinary_unserialize";
+			}
+
+			$data = $unserializer(file_get_contents($filename));
+
 			$this->seq = $data['seq'];
 			$this->version = $data['version'];
 			$this->masters = $data['masters'];
 
-			// NOTE: auto-detecting if masters are serialized separately (attempt to bypass segfaults with PHP engine
-			if (is_string(reset($this->masters))) {
+			// auto-detecting if masters are serialized separately (to support loading an old version)
+			if ($this->version < 45 && is_string(reset($this->masters))) {
 				foreach ($this->masters as $key => $master) {
-					$this->masters[$key] = unserialize($master);
+					$this->masters[$key] = $unserializer($master);
 				}
 			}
 
@@ -143,13 +160,17 @@ class Brain {
 			// keep a copy of ourself (no change done when not in learning mode)
 			echo "Saving BRAIN...";
 
-			// NOTE: attempting to bypass serialization bug causing segfault
-			foreach ($this->masters as $key => $master) {
-				$this->masters[$key] = serialize($master);
+			if (function_exists("igbinary_serialize")) {			// force the update
+				Common::trace(" with igbinary_serialize().", Common::DEBUG_INFO);
+				$serializer = "igbinary_serialize";
+			}
+			else {
+				Common::trace(" with serialize().", Common::DEBUG_INFO);
+				$serializer = "serialize";
 			}
 
 			$data = ['seq' => $this->seq, 'masters' => $this->masters, 'version' => $this->version];
-			file_put_contents($this->path . "/Brain-" . $this->name . ".dat", serialize($data));
+			file_put_contents($this->path . "/Brain-" . $this->name . ".dat", $serializer($data));
 			echo "completed!\n";
 		}
 	}
@@ -189,6 +210,8 @@ class Brain {
 		}
 
 		$newArr = [];
+
+		$args = func_get_args();
 
 		foreach ($arrs[0] as $key => $val) {
 			$newArr[$key] = [];
@@ -262,7 +285,7 @@ class Brain {
 
 		$best = null;
 		$totalSteps = 0;
-		foreach ($this->masters as $master) {
+		foreach ($this->masters as $id => $master) {
 			$response = $master->getAnswer($data, $result);
 
 			if (!is_null($response)) {
@@ -296,7 +319,7 @@ class Brain {
 		}
 
 		if (!is_null($result) && (is_null($best) || !Common::isSameAnswer($best['answer'], $result))) {
-			throw new \Exception("Learning failed and this should not happen.  Please report this issue for troubleshooting!");
+			throw new Exception("Learning failed and this should not happen.  Please report this issue for troubleshooting!");
 		}
 
 		if (Common::$backTrack) {

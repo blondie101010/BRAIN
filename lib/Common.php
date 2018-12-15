@@ -18,6 +18,9 @@ class Common {
 	const DEBUG_INFO = 2;
 	const DEBUG_EXTREME = 3;
 
+	const SERIALIZATION_CLASSIC = 0;
+	const SERIALIZATION_IGBINARY = 1;
+
 	/** @var bool $debug Debug level matching the above constants. */
 	static public $debug = self::DEBUG_ERROR;
 
@@ -49,6 +52,24 @@ class Common {
 	 **/
 	static function isSameAnswer(float $a, float $b) {
 		return ($a > 0.33 && $b > 0.33) || ($a < -0.33 && $b < -0.33) || ($a >= -0.33 && $b >= -0.33 && $a <= 0.33 && $b < 0.33);
+	}
+
+
+	static function detectSerialization($filename) {
+		if (!($fp = fopen($filename, "r"))) {
+			throw new Exception("error opening $filename");
+		}
+
+		$head = fread($fp, 2);
+
+		fclose($fp);
+
+		if ($head === "a:") {
+			return self::SERIALIZATION_CLASSIC;
+		}
+		else {
+			return self::SERIALIZATION_IGBINARY;
+		}
 	}
 }
 

@@ -151,9 +151,9 @@ Note that back-tracking should be functional but is not yet tested.
 
 ### Known issues
 
-The only operational problem encountered during testing of this release is an occasional segmentation fault of the PHP engine when running a learning job on a 4M node BRAIN.  This issue is under investigation and independent test scripts with similar behaviours have been developed to clarify it.  
+The main issue encountered is with PHP's `serialize()` which has addressing issues when dealing with a large object tree.
 
-Once the problem became recurrent on a huge personal BRAIN, multiple tests to push the limits of the PHP engine were made, and it soon become fairly easy to make test scripts that were able to cause the PHP engine to have segmentation faults.  On a positive note, **most** of these were fixed in PHP 7.2.4.
+The latest version now automatically detects and uses `igbinary_serialize()` if it is available.  This is **strongly recommended**.
 
 
 ## Future
