@@ -16,15 +16,15 @@ While it may give the impression that the testing pass could be a waste of time,
 
 The `Feeder`'s constructor takes the following arguments:
 
-  Type  Name        Default               Notes
-  _____ ___________ _____________________ ________________________________________________________________________________________ 
-  Brain $brain      -                     the Brain instance
-  int   $mode       MODE_TEST_AND_LEARN   MODE_TEST_AND_LEARN, MODE_TEST_ONLY, and MODE_LEARN_ONLY;  MODE_LEARN_ONLY will not
-                                          perform discrimination learning and is therefore *much* less learning efficient
-  int   $skip       0                     number of lines to skip in the input
-  int   $batchSize  1000                  number of records to process per batch;  this should be as high as available RAM 
-                                          permits for efficiency
-  bool  $sample     false                 whether it should only process subsets of the input data;  mostly useful for testing
-  int   $effort     5                     define the effort used to balance efficiency with error tolerance;  the default is good
-                                          for simple relationships but should othewise be increased;  be advised that raising it
-                                          too high when there are contradictions in the data can make the task much slower
+    Type  Name        Default               Notes
+    _____ ___________ _____________________ _______________________________________________________________________________________ 
+    Brain $brain      -                     the Brain instance
+    int   $mode       MODE_TEST_AND_LEARN   MODE_TEST_AND_LEARN, MODE_TEST_ONLY, and MODE_LEARN_ONLY;  MODE_LEARN_ONLY will not
+                                            perform discrimination learning and is therefore *much* less learning efficient
+    int   $skip       0                     number of lines to skip in the input
+    int   $batchSize  1000                  number of records to process per batch;  this should be as high as available RAM 
+                                            permits for efficiency
+    bool  $sample     false                 whether it should only process subsets of the input data;  mostly useful for testing
+    int   $effort     5                     define the effort used to balance efficiency with error tolerance;  the default is good
+                                            for simple relationships but should othewise be increased;  be advised that raising it
+                                            too high when there are contradictions in the data can make the task much slower
