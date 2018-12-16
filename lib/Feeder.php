@@ -21,12 +21,12 @@ class Feeder {
 	protected $skip;
 	protected $batchSize;
 	protected $sample;
+	protected $maxAttempts;
+	protected $tolerance;
 
 	public const MODE_TEST_AND_LEARN = 1;
 	public const MODE_TEST_ONLY = 2;
 	public const MODE_LEARN_ONLY = 3;
-
-	public const MAX_ATTEMPTS = 20;
 
 
 	/**
@@ -37,14 +37,17 @@ class Feeder {
 	 * @param int $skip Number of lines (records) to skip from the beginning of the data (file).
 	 * @param int $batchSize Number of lines (records) to use in a batch.  This is a choice between speed and quality.  Bigger batches improve the learning quality but usually takes longer.
 	 * @param bool $sample Whether to only read subsets of the records (true) or not (false).  This is most useful when you feed records that are regrouped or organized to a baby BRAIN.
-	 * @return Brain The new Feeder instance.
+	 * @param int $effort Intensity of efforts made to learn.  This is deterimining in the time needed to process the batch and in the quality of learning, but in some conflicting cases it can take longer for nothing.
+	 * @return Feeder The new Feeder instance.
 	 **/
-	public function __construct(Brain $brain, int $mode, int $skip, int $batchSize, bool $sample) {
+	public function __construct(Brain $brain, int $mode = MODE_TEST_AND_LEARN, int $skip = 0, int $batchSize = 1000, bool $sample = false, int $effort = 5) {
 		$this->brain = $brain;
 		$this->mode = $mode;
 		$this->skip = $skip;
 		$this->batchSize = $batchSize;
 		$this->sample = $sample;
+		$this->maxAttempts = max(1, round(4.4 * $effort));
+		$this->tolerance = round(6.6 / max(0.000000001, $effort));
 
 		pcntl_signal(SIGTERM, [$this, "signalHandler"]); 									// setup signal handler
 	}
@@ -154,7 +157,12 @@ class Feeder {
 			throw new \Exception("Error opening $inputFile!\n");
 		}
 
-		$testMode = false;																	// always start by learning to make things simple
+		if ($this->brain->isNew) {
+			$testMode = false;
+		}
+		else {
+			$testMode = true;
+		}
 
 		Common::trace("reading file $inputFile", Common::DEBUG_INFO);
 
@@ -220,7 +228,7 @@ class Feeder {
 				}
 				else {
 					$retries = 0;
-					while (count($allFailed) && $retries < 10) {
+					while (count($allFailed) && $retries < 0.5 * $this->maxAttempts) {
 						shuffle($allFailed);												// prevent order from limiting our learning
 						$lastFailed = array_unique($this->processDataBlock($allFailed, $testMode, $lastFailed, "aF"));
 
@@ -235,32 +243,23 @@ class Feeder {
 						$retries ++;
 					}
 
-					if (count($difficult)) {
-						$tmpDiff = $this->processDataBlock($difficult, $testMode, [], "D");
-					}
-					else {
-						$tmpDiff = [];
+					$tmpDiff = array_merge($difficult, $allFailed);
+
+					for ($retries = 0; count($tmpDiff) && $retries < $this->maxAttempts; $retries ++) {
+						$tmpDiff = $this->processDataBlock($tmpDiff, $testMode, [], "D");
 					}
 
 					$contents = $this->processDataBlock($firstContents, $testMode, [], "B");
 
-					if (count($lastFailed)) {
-						if (!$firstPass) {													// don't drag them when they get solved in one pass
-							$difficult = array_unique(array_merge($lastFailed, $difficult));// keep the thoughest records
-						}
-
-						shuffle($lastFailed);												// prevent order from limiting our learning
-						$lastFailed = $this->processDataBlock($lastFailed, $testMode, [], "lFb");	// reinforce the most difficult learning
-					}
-					else {
-						$difficult = array_unique(array_merge($contents, $difficult));		// keep the thoughest records
-					}
-
-					$allFailed = array_unique(array_merge($contents, $tmpDiff, $lastFailed));
+					shuffle($lastFailed);														// prevent order from limiting our learning
+					$difficult = array_unique(array_merge($lastFailed, $difficult, $contents));	// keep the thoughest records
+					$lastFailed = $this->processDataBlock($lastFailed, $testMode, [], "lFb");	// reinforce the most difficult learning
+					$allFailed = array_unique(array_merge($contents, $difficult, $tmpDiff));
 
 					$attempts ++;
 
-					if ($attempts > self::MAX_ATTEMPTS || !count($contents)) {
+					if ($attempts > $this->maxAttempts || (count($contents) < $this->tolerance && count($difficult) < $this->tolerance &&
+														   count($lastFailed) < $this->tolerance)) {
 						break;
 					}
 				}

@@ -82,11 +82,11 @@ class Link {
 	private function isBadCondition() {
 		return !is_null($this->target) && 
 			   get_class($this->target) == "Blondie101010\Brain\Condition" &&
-			   (($this->ratingCount > 10 && $this->rating < self::BASE_RATING - 0.05) || 
-			    ($this->ratingCount > 15 && $this->rating < self::BASE_RATING) || 
-			    ($this->ratingCount > 20 && $this->rating < self::BASE_RATING + 0.05) || 
+			   (($this->ratingCount > 15 && $this->rating < self::BASE_RATING - 0.2) || 
+			    ($this->ratingCount > 25 && $this->rating < self::BASE_RATING - 0.1) || 
+			    ($this->ratingCount > 50 && $this->rating < self::BASE_RATING) || 
 //			    in_array($this->target->field0, ["Ffield0", "Fotherfield"]) ||				// quick patch to remove some undesired fields;  be sure to remove them from your input data before you apply this patch
-			    ($this->target->geCount > 50 && !$this->target->ltCount));
+			    ($this->target->geCount > 100 && !$this->target->ltCount));
 	}
 
 

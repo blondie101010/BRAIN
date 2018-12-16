@@ -53,6 +53,9 @@ class Brain {
 	/** @var int $minSteps Minimum number of steps needed to get an Answer in a master chain.  This is only for debugging. */
 	private $minSteps = PHP_INT_MAX;
 
+	/** @var bool $isNew Whether this is a new BRAIN or not. */
+	private $isNew = false;
+
 
 	/**
 	 * Brain constructor which loads the corresponding data file.
@@ -139,6 +142,7 @@ class Brain {
 			}
 		}
 		else {
+			$this->isNew = true;
 			$this->version = self::LATEST_VERSION;
 		}
 
@@ -172,6 +176,22 @@ class Brain {
 			$data = ['seq' => $this->seq, 'masters' => $this->masters, 'version' => $this->version];
 			file_put_contents($this->path . "/Brain-" . $this->name . ".dat", $serializer($data));
 			echo "completed!\n";
+		}
+	}
+
+
+	/**
+	 * Retrieve an individual property.  This allows read-only access to all the class's properties.
+	 *
+	 * @param string $name Name of the property to retrieve.
+	 * @return mixed Value of the requested property or null if undefined.
+	 **/
+	public function __get(string $name) {
+		if ($name === 'isNew') {
+			return $this->$name;
+		}
+		else {
+			return null;
 		}
 	}
 
