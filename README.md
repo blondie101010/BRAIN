@@ -14,7 +14,7 @@ BRAIN is now in Packagist, so it can be installed with composer as:
 
 ### Instanciation
 
-    $brain = new \Blondie101010\Brain\Brain(string $name, string $site, string $brainPath = "./data");
+    $brain = new \Blondie101010\Brain\Brain($name, $site, $brainPath = "./data");
 
 Parameters:
 - $name: the name you wish to give that BRAIN, which is used in its filename
