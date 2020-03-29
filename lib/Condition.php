@@ -50,7 +50,7 @@ class Condition {
 			$this->field0 = $field;
 			// define fields for comparison which includes the progression analysis types
 			$types = ["_+", "_*", "_m", "_M"];                                              // arithmetic progression, geometric progression, min, max
-			$this->field1 = $types[rand(1, 4)];			 						            // define the progression analysis type
+			$this->field1 = $types[rand(0, 3)];			 						            // define the progression analysis type
 
 			$this->value = self::getProgression($data[$field], $this->field1[1]);
 		}
@@ -60,14 +60,19 @@ class Condition {
 					$this->value = null;													// N/A
 
 					$fieldType = gettype($data[$field]);
+
 					unset($data[$field]);									   				// remove current field from the list to avoid duplicates
 
 					while (($field1 = array_rand($data)) !== null) {
+						if ($fieldType == 'integer') {											// simple cheat to let it compare int to float
+							$fieldType = 'double';
+						}
+
 						if ($fieldType == gettype($data[$field1])) {
 							break;
 						}
 						
-						unset($data[$field]);												// remove current field from the list to avoid duplicates
+						unset($data[$field1]);												// remove current field from the list to avoid duplicates
 					}
 
 					if (!is_null($field1)) {
