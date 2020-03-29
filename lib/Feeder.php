@@ -37,7 +37,7 @@ class Feeder {
 	 * @param int $skip Number of lines (records) to skip from the beginning of the data (file).
 	 * @param int $batchSize Number of lines (records) to use in a batch.  This is a choice between speed and quality.  Bigger batches improve the learning quality but usually takes longer.
 	 * @param bool $sample Whether to only read subsets of the records (true) or not (false).  This is most useful when you feed records that are regrouped or organized to a baby BRAIN.
-	 * @param int $effort Intensity of efforts made to learn.  This is deterimining in the time needed to process the batch and in the quality of learning, but in some conflicting cases it can take longer for nothing.
+	 * @param int $effort Intensity of efforts made to learn.  This is determining in the time needed to process the batch and in the quality of learning, but in some conflicting cases it can take longer for nothing.
 	 * @return Feeder The new Feeder instance.
 	 **/
 	public function __construct(Brain $brain, int $mode = MODE_TEST_AND_LEARN, int $skip = 0, int $batchSize = 1000, bool $sample = false, int $effort = 5) {
@@ -46,7 +46,7 @@ class Feeder {
 		$this->skip = $skip;
 		$this->batchSize = $batchSize;
 		$this->sample = $sample;
-		$this->maxAttempts = max(1, round(4.4 * $effort));
+		$this->maxAttempts = max(1, round(5.5 * $effort));
 		$this->tolerance = round(6.6 / max(0.000000001, $effort));
 
 		pcntl_signal(SIGTERM, [$this, "signalHandler"]); 									// setup signal handler
@@ -130,7 +130,8 @@ class Feeder {
 
 				$total = $good = 0;
 
-				if ($score == 100.0 || $this->mode == self::MODE_TEST_ONLY) {
+//				if ($score > 99.99 || $this->mode == self::MODE_TEST_ONLY) {
+				if ($score == 100 || $this->mode == self::MODE_TEST_ONLY) {
 					return [];																	// already a perfect round
 				}
 				else {
@@ -217,6 +218,9 @@ class Feeder {
 					}
 
 					$lastFailed = $contents;
+
+					// be more aggressive by keeping all failed records
+					$difficult = array_unique(array_merge($lastFailed, $difficult));
 				}
 
 				if ($this->mode != self::MODE_LEARN_ONLY) {
@@ -258,8 +262,8 @@ class Feeder {
 
 					$attempts ++;
 
-					if ($attempts > $this->maxAttempts || (count($contents) < $this->tolerance && count($difficult) < $this->tolerance &&
-														   count($lastFailed) < $this->tolerance)) {
+					if ($attempts > $this->maxAttempts || (count($contents) - 1 < $this->tolerance &&
+														   count($lastFailed) - 1 < $this->tolerance)) {
 						break;
 					}
 				}
