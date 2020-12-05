@@ -63,7 +63,7 @@ class Condition {
 
 					unset($data[$field]);									   				// remove current field from the list to avoid duplicates
 
-					while (($field1 = array_rand($data)) !== null) {
+					while (count($data) && ($field1 = array_rand($data)) !== null) {
 						if ($fieldType == 'integer') {											// simple cheat to let it compare int to float
 							$fieldType = 'double';
 						}
